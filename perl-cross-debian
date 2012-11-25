@@ -1,0 +1,20 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+#ifneq ($(DEB_HOST_GNU_TYPE),$(DEB_BUILD_GNU_TYPE))
+
+#define variant
+#$(if $(findstring static,$1),static,$(if $(findstring debug,$1),debug,shared))
+#endef
+#	echo "Copy in pre-produced config files"
+#	cp Cross/$(DEB_HOST_GNU_TYPE)/config.h.$(call variant,$@) config.h
+#	cp config.h xconfig.h
+#	sed "s:PERL_BUILD_DIR:$(srcdir):g" < Cross/$(DEB_HOST_GNU_TYPE)/config.sh.$(call variant,$@) > config.sh
+#	cp Cross/$(DEB_HOST_GNU_TYPE)/uudmap.h uudmap.h
+#	cp Cross/$(DEB_HOST_GNU_TYPE)/bitcount.h bitcount.h
+#	cp Cross/$(DEB_HOST_GNU_TYPE)/mg_data.h mg_data.h
+#	echo "And use them to make the Makefiles......"
+#	cp /usr/share/perl-cross-debian/Configure.cross .
+#	sh ./Configure.cross
