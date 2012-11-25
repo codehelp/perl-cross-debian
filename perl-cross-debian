@@ -16,15 +16,16 @@
 #  MA 02110-1301, USA.
 #  
 
-use File::Basename;
-use Cwd qw (realpath getcwd);
 use strict;
 use warnings;
-use vars qw / $progname $variant @lines $srcdir $rootdir $perlver
- @copying $arch /;
+use File::Basename;
+use Cwd qw (realpath getcwd);
+use vars qw / $progname $variant @lines $srcdir $rootdir $perlver @copying $arch $ver %names /;
 $progname = basename($0);
 $srcdir = getcwd();
 $rootdir = '/usr/share/perl-cross-debian/';
+$ver = &our_version();
+%names = ( static => 1, debug => 2, shared => 3 );
 while( @ARGV ) {
 	$_= shift( @ARGV );
 	last if m/^--$/;
@@ -45,23 +46,21 @@ while( @ARGV ) {
 		die sprintf ("%s: Unknown option %s.\n", $progname, $_);
 	}
 }
-
+die sprintf("%s - Error: no variant specified!\n", $progname) if (not defined $variant);
+die sprintf("%s - Error: unrecognised variant: '%s'!\n", $progname, $variant)
+	if (not defined $names{$variant});
 die sprintf("%s needs to be run within dpkg-architecture -c !\n", $progname)
-	if not defined $ENV{'DEB_HOST_GNU_TYPE'} or
-		not defined $ENV{'DEB_BUILD_GNU_TYPE'};
-
-if ($ENV{'DEB_HOST_GNU_TYPE'} eq $ENV{'DEB_BUILD_GNU_TYPE'}) {
-	die sprintf("%s - Error: nothing to do here, not a cross-build!\n", $progname);
-}
+	if (not defined $ENV{'DEB_HOST_GNU_TYPE'} or not defined $ENV{'DEB_BUILD_GNU_TYPE'});
+die sprintf("%s - Error: nothing to do here, not a cross-build!\n", $progname)
+	if ($ENV{'DEB_HOST_GNU_TYPE'} eq $ENV{'DEB_BUILD_GNU_TYPE'});
 $arch = $ENV{'DEB_HOST_GNU_TYPE'};
 chomp ($arch);
 die sprintf("%s: Cannot find ./debian/config.debian!", $progname)
 	if (not -f './debian/config.debian');
 $perlver = `sh ./debian/config.debian --full-version`;
 chomp ($perlver);
-die sprintf ("%s - %s does not exist!\n", $progname, $rootdir)
-	if (not -d "${rootdir}");
 $rootdir .= "${arch}/${perlver}/";
+die sprintf ("%s - %s does not exist!\n", $progname, $rootdir) if (not -d "${rootdir}");
 print "Copy in pre-produced config files for ${perlver} from ${rootdir}\n";
 
 open(USR_H, "${rootdir}config.h.${variant}") or die ($!);
@@ -86,13 +85,13 @@ open(CFG, ">config.sh") or die ($!);
 print CFG @out;
 close (CFG);
 
-if ("$perlver" eq "5.16") {
+if ("$perlver" =~ "/^5.16/") {
 	push @copying, 'mg_data.h';
 	push @copying, 'bitcount.h';
 	push @copying, 'uudmap.h';
 }
 
-if ("$perlver" eq "5.14") {
+if ("$perlver" =~ "/^5.14/") {
 	push @copying, 'bitcount.h';
 	push @copying, 'uudmap.h';
 }
@@ -117,4 +116,23 @@ close (CRS);
 system ("sh ./Configure.cross");
 
 sub usageversion {
+	warn sprintf ("
+%s version %s
+
+Usage:
+ %s --variant STR [--rootdir DIR]
+ %s -?|-h|--help|--version
+
+Command:
+ --variant STRING - name of the current perl build variant (static, debug, shared)
+
+Options:
+ --rootdir DIR    - debug support for testing with unreleased config files.
+
+", $progname, $ver, $progname, $progname);
+}
+
+sub our_version {
+	my $query = `dpkg-query -W -f='\${Version}' perl-cross-debian 2>/dev/null`;
+	($query ne "") ? return $query : return "0.0.1";
 }
