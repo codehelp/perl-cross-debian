@@ -1,2 +1,7 @@
 build-stamp
 perl-cross-debian.1
+debian/files
+debian/*.debhelper.log
+debian/*.substvars
+debian/perl-cross-debian/
+

@@ -1,20 +1,120 @@
 #!/usr/bin/perl
 
+#  This program is free software; you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation; either version 2 of the License, or
+#  (at your option) any later version.
+#  
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#  
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, write to the Free Software
+#  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+#  MA 02110-1301, USA.
+#  
+
+use File::Basename;
+use Cwd qw (realpath getcwd);
 use strict;
 use warnings;
+use vars qw / $progname $variant @lines $srcdir $rootdir $perlver
+ @copying $arch /;
+$progname = basename($0);
+$srcdir = getcwd();
+$rootdir = '/usr/share/perl-cross-debian/';
+while( @ARGV ) {
+	$_= shift( @ARGV );
+	last if m/^--$/;
+	if (!/^-/) {
+		unshift(@ARGV,$_);
+		last;
+	} elsif (/^(-\?|-h|--help|--version)$/) {
+		&usageversion();
+		exit( 0 );
+	} elsif (/^(--rootdir)$/) {
+		$rootdir = shift;
+		$rootdir = `realpath $rootdir`;
+		chomp ($rootdir);
+		$rootdir .= '/';
+	} elsif (/^(--variant)$/) {
+		$variant = shift;
+	} else {
+		die sprintf ("%s: Unknown option %s.\n", $progname, $_);
+	}
+}
 
-#ifneq ($(DEB_HOST_GNU_TYPE),$(DEB_BUILD_GNU_TYPE))
+die sprintf("%s needs to be run within dpkg-architecture -c !\n", $progname)
+	if not defined $ENV{'DEB_HOST_GNU_TYPE'} or
+		not defined $ENV{'DEB_BUILD_GNU_TYPE'};
 
-#define variant
-#$(if $(findstring static,$1),static,$(if $(findstring debug,$1),debug,shared))
-#endef
-#	echo "Copy in pre-produced config files"
-#	cp Cross/$(DEB_HOST_GNU_TYPE)/config.h.$(call variant,$@) config.h
-#	cp config.h xconfig.h
-#	sed "s:PERL_BUILD_DIR:$(srcdir):g" < Cross/$(DEB_HOST_GNU_TYPE)/config.sh.$(call variant,$@) > config.sh
-#	cp Cross/$(DEB_HOST_GNU_TYPE)/uudmap.h uudmap.h
-#	cp Cross/$(DEB_HOST_GNU_TYPE)/bitcount.h bitcount.h
-#	cp Cross/$(DEB_HOST_GNU_TYPE)/mg_data.h mg_data.h
-#	echo "And use them to make the Makefiles......"
-#	cp /usr/share/perl-cross-debian/Configure.cross .
-#	sh ./Configure.cross
+if ($ENV{'DEB_HOST_GNU_TYPE'} eq $ENV{'DEB_BUILD_GNU_TYPE'}) {
+	die sprintf("%s - Error: nothing to do here, not a cross-build!\n", $progname);
+}
+$arch = $ENV{'DEB_HOST_GNU_TYPE'};
+chomp ($arch);
+die sprintf("%s: Cannot find ./debian/config.debian!", $progname)
+	if (not -f './debian/config.debian');
+$perlver = `sh ./debian/config.debian --full-version`;
+chomp ($perlver);
+die sprintf ("%s - %s does not exist!\n", $progname, $rootdir)
+	if (not -d "${rootdir}");
+$rootdir .= "${arch}/${perlver}/";
+print "Copy in pre-produced config files for ${perlver} from ${rootdir}\n";
+
+open(USR_H, "${rootdir}config.h.${variant}") or die ($!);
+@lines=<USR_H>;
+close (USR_H);
+open(CFG, ">config.h") or die ($!);
+print CFG @lines;
+close (CFG);
+open(CFG, ">xconfig.h") or die ($!);
+print CFG @lines;
+close (CFG);
+
+open(USR_SH, "${rootdir}config.sh.${variant}") or die ($!);
+@lines=<USR_SH>;
+close (USR_SH);
+my @out=();
+foreach my $line (@lines) {
+	$line =~ s:PERL_BUILD_DIR:${srcdir}:g;
+	push @out, $line;
+}
+open(CFG, ">config.sh") or die ($!);
+print CFG @out;
+close (CFG);
+
+if ("$perlver" eq "5.16") {
+	push @copying, 'mg_data.h';
+	push @copying, 'bitcount.h';
+	push @copying, 'uudmap.h';
+}
+
+if ("$perlver" eq "5.14") {
+	push @copying, 'bitcount.h';
+	push @copying, 'uudmap.h';
+}
+foreach my $file (@copying) {
+	open (CPY, "${rootdir}$file") or die ($!);
+	my @cpy=<CPY>;
+	close (CPY);
+	open (GEN, ">$file") or die;
+	print GEN @cpy;
+	close (GEN);
+}
+
+print "And use them to make the Makefiles......\n";
+
+open (CON, "${rootdir}../../Configure.cross") or die ($!);
+my @conf=<CON>;
+close (CON);
+open (CRS, ">Configure.cross") or die ($!);
+print CRS @conf;
+close (CRS);
+
+system ("sh ./Configure.cross");
+
+sub usageversion {
+}

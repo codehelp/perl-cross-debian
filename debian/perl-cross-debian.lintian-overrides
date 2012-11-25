@@ -1,0 +1,2 @@
+# allow the snippets to not require executable permissions.
+perl-cross-debian: script-not-executable usr/share/perl-cross-debian/*
