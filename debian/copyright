@@ -4,6 +4,8 @@ Source: https://github.com/codehelp/perl-cross-debian
 
 Files: *
 Copyright: 2012 Neil Williams <codehelp@debian.org>
+           2011 Steve McIntyre <steve.mcintyre@linaro.org>
+           2010 Peter Pearse <peter.pearse@linaro.org> 
 License: GPL-3.0+
 
 Files: debian/*
