@@ -44,7 +44,7 @@ binary-indep: install
 	dh_installexamples
 	dh_install
 #	dh_installdebconf
-#	dh_lintian
+	dh_lintian
 	dh_installman
 	dh_link
 	dh_compress

@@ -1,3 +1,4 @@
 perl-cross-debian.1 ./usr/share/man/man1/
 perl-cross-debian ./usr/bin/
 Configure.cross ./usr/share/perl-cross-debian/
+arm-linux-gnueabi/ ./usr/share/perl-cross-debian/
