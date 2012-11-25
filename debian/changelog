@@ -1,0 +1,5 @@
+perl-cross-debian (0.0.1) experimental; urgency=low
+
+  * Initial Release.
+
+ -- Neil Williams <codehelp@debian.org>  Sun, 25 Nov 2012 13:41:24 +0000

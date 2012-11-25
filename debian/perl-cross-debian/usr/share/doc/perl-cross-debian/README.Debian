@@ -1,0 +1,8 @@
+perl-cross-debian for Debian
+----------------------------
+
+ * perl-cross-debian does not depend on a cross-compiler but your
+   cross-build will require one. Once cross-compilers are part of
+   standard Debian, this dependency could be added.
+
+ -- Neil Williams <codehelp@debian.org>  Sun, 25 Nov 2012 13:41:24 +0000

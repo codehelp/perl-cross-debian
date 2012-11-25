@@ -1,0 +1,22 @@
+Source: perl-cross-debian
+Section: devel
+Priority: extra
+Maintainer: Neil Williams <codehelp@debian.org>
+Build-Depends: debhelper (>= 8.0.0), xsltproc, docbook-xsl
+Standards-Version: 3.9.3
+Homepage: https://github.com/codehelp/perl-cross-debian
+Vcs-Git: git://github.com/codehelp/perl-cross-debian.git
+Vcs-Browser: https://github.com/codehelp/perl-cross-debian
+
+Package: perl-cross-debian
+Architecture: all
+Depends: ${misc:Depends}
+Description: Cross build support for Debian perl configurations
+ This package provides the configuration values for selected
+ versions of perl, compatible with the Debian configuration of
+ that version of perl, to avoid detection of these values during
+ a cross-build.
+ .
+ Also provides a helper script to push the relevant configuration
+ files into the cross-build using support in debian/rules within
+ perl.

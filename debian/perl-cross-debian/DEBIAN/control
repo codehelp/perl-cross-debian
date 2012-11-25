@@ -1,0 +1,17 @@
+Package: perl-cross-debian
+Version: 0.0.1
+Architecture: all
+Maintainer: Neil Williams <codehelp@debian.org>
+Installed-Size: 36
+Section: devel
+Priority: extra
+Homepage: https://github.com/codehelp/perl-cross-debian
+Description: Cross build support for Debian perl configurations
+ This package provides the configuration values for selected
+ versions of perl, compatible with the Debian configuration of
+ that version of perl, to avoid detection of these values during
+ a cross-build.
+ .
+ Also provides a helper script to push the relevant configuration
+ files into the cross-build using support in debian/rules within
+ perl.
