@@ -10,11 +10,21 @@ upstream to maintain cross-build support.
 For now, the relevant patch is stored in the perl-cross-debian git repository
 under the relevant perl version in the patches/ directory.
 
+Changes include disabling tests which will be covered by the cached files
+and generated headers.
+
 =head2 debian/rules
 
 The Debian packaging needs to set the CROSS_PERL variable to the
-native perl interpreter on the $(DEB_BUILD_GNU_TYPE) system. There are
-also changes to find the dependencies:
+native perl interpreter on the $(DEB_BUILD_GNU_TYPE) system. As with
+all cross-builds, the test suite is also disabled and calls to commands
+like objcopy and strip are replaced by variables to call the cross-aware
+versions of the same commands.
+
+The relevant patch is stored in the perl-cross-debian git repository
+under the patches/debian directory. 
+
+There are also changes to find the dependencies:
 
  export ZLIB_INCLUDE=/usr/include
  export ZLIB_LIB=/usr/lib
