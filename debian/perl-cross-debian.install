@@ -3,3 +3,5 @@ perl-cross-debian ./usr/bin/
 Configure.cross ./usr/share/perl-cross-debian/
 arm-linux-gnueabi/ ./usr/share/perl-cross-debian/
 arm-linux-gnueabihf/ ./usr/share/perl-cross-debian/
+doc/converting-native.pod ./usr/share/doc/perl-cross-debian/
+doc/new-arch.pod ./usr/share/doc/perl-cross-debian/
