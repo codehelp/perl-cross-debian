@@ -1,0 +1,49 @@
+=pod
+
+=head1 TODO list
+
+=head2 Makefile.SH
+
+The upstream Makefile.SH needs a patch which itself will need maintenance
+upstream to maintain cross-build support.
+
+For now, the relevant patch is stored in the perl-cross-debian git repository
+under the relevant perl version in the patches/ directory.
+
+=head2 debian/rules
+
+The Debian packaging needs to set the CROSS_PERL variable to the
+native perl interpreter on the $(DEB_BUILD_GNU_TYPE) system. There are
+also changes to find the dependencies:
+
+ export ZLIB_INCLUDE=/usr/include
+ export ZLIB_LIB=/usr/lib
+ export BZIP2_INCLUDE=/usr/include
+ export BZIP2_LIB=/usr/lib
+ export INCLUDE=/usr/include
+
+Cross-building (dpkg-cross method) will need:
+
+ export ZLIB_INCLUDE=/usr/$(DEB_HOST_GNU_TYPE)/include
+ export ZLIB_LIB=/usr/$(DEB_HOST_GNU_TYPE)/lib
+ export BZIP2_INCLUDE=/usr/$(DEB_HOST_GNU_TYPE)/include
+ export BZIP2_LIB=/usr/$(DEB_HOST_GNU_TYPE)/lib
+ export INCLUDE=/usr/$(DEB_HOST_GNU_TYPE)/include
+ export LIB=/usr/$(DEB_HOST_GNU_TYPE)/lib
+
+=head2 Multiarch support
+
+At some point, the cross-build mechanism will need to be adapted to
+MultiArch paths:
+
+ export ZLIB_INCLUDE=/usr/include/$(DEB_HOST_MULTIARCH)
+ export ZLIB_LIB=/usr/lib/$(DEB_HOST_MULTIARCH)
+ export BZIP2_INCLUDE=/usr/include/$(DEB_HOST_MULTIARCH)
+ export BZIP2_LIB=/usr/lib/$(DEB_HOST_MULTIARCH)
+ export INCLUDE=/usr/include/$(DEB_HOST_MULTIARCH)
+ export LIB=/usr/lib/$(DEB_HOST_MULTIARCH)
+
+perl-cross-debian may need to adapt the cached config files as well at
+this point but the exact details are not finalised.
+
+=cut

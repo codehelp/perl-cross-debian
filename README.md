@@ -3,6 +3,10 @@ perl-cross-debian
 
 Long term maintenance of cross-build support for the Debian configuration of perl.
 
+n.b. this code is, as yet, unreleased and relies on patches which have not
+yet been applied upstream (to both perl and the Debian perl packaging).
+See the todo list in the doc directory.
+
 See also: [linux.codehelp.co.uk/serendipity](http://linux.codehelp.co.uk/serendipity/index.php?/archives/239-Long-term-maintenance-of-perl-cross-build-support-in-Debian.html)
 
 1. perl-cross-debian is restricted to cross-build support of perl using
