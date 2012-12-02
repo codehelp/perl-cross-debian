@@ -32,7 +32,7 @@ There are also changes to find the dependencies:
  export BZIP2_LIB=/usr/lib
  export INCLUDE=/usr/include
 
-Cross-building (dpkg-cross method) will need:
+Cross-building (dpkg-cross paths) will need:
 
  export ZLIB_INCLUDE=/usr/$(DEB_HOST_GNU_TYPE)/include
  export ZLIB_LIB=/usr/$(DEB_HOST_GNU_TYPE)/lib
@@ -55,5 +55,12 @@ MultiArch paths:
 
 perl-cross-debian may need to adapt the cached config files as well at
 this point but the exact details are not finalised.
+
+=head1 History
+
+The original version of these patches can be found here:
+http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=285559
+updated for 5.12 here:
+http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=633884
 
 =cut
