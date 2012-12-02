@@ -1,0 +1,113 @@
+=pod
+
+=head1 Name
+
+converting-native - guidance on updating an existing architecture
+
+=head1 Converting a series of native files to cross-support
+
+Once more data is collected for particular versions of perl, this step
+may become scriptable. For now, there are steps to be taken to prepare
+a set of cross-build support data files from the files collated from a
+particular sequence of build commands on the native architecture.
+
+=head1 Prerequisites
+
+=over 1
+
+=item Debian buildd base system
+
+F<perl-cross-debian> only supports Debian builds - numerous config settings
+will change if perl detects a different base system and these will mask
+the required changes to update the cross support to that version of perl.
+
+Always prepare the files on a Debian base system - specifically a Debian
+buildd system which is as close as possible to a typical buildd environment.
+
+This explicitly includes ensuring that all of the Debian build-dependencies
+for the version of perl to be tested are installed correctly as Debian
+packages - i.e. C<dpkg-checkbuilddeps> must complete successfully and the
+same environment must be capable of doing a complete native build of perl,
+including running the test suite successfully.
+
+It is uncertain at this time whether a Debian chroot on a non-Debian
+system is supportable - if relevant data is collected and compared, this
+can be clarified.
+
+=item Debian patches applied
+
+Similarly to the buildd setup, the config files can be affected by the
+patches normally applied by Debian. Therefore, the cross-support for any
+particular version of perl can only be started after the first usable
+upload of perl is made for that version, typically via experimental and
+the full Debian patch set needs to be applied. For this reason, the
+data builds use C<fakeroot debian/rules> and it is necessary to run
+C<debclean> between runs.
+
+=back
+
+=head1 Running each of the three builds
+
+=over 1
+
+=item Static config files
+
+ DEB_BUILD_OPTIONS="nocheck" fakeroot debian/rules perl.static 
+
+ cp config.h ../config.h.static
+ cp config.sh ../config.sh.static
+
+=item Debug config files
+
+ DEB_BUILD_OPTIONS="nocheck" fakeroot debian/rules perl.debug 
+
+ cp config.h ../config.h.debug
+ cp config.sh ../config.sh.debug
+
+=item Shared library config files
+
+ VERSION=`/bin/bash debian/config.debian --full-version`
+ DEB_BUILD_OPTIONS="nocheck" fakeroot debian/rules libperl.so.$(VERSION)
+
+ cp config.h ../config.h.shared
+ cp config.sh ../config.sh.shared
+
+=back
+
+=head2 Identifying and caching generated header files
+
+Versions of perl from 5.16.2 onwards use a generated_headers variable in
+Makefile.SH - each of those headers needs to be copied out of the tree
+and kept for cross-build support.
+
+These headers B<are not expected to change> between stages B<but must
+be compared> between builds to check for modified upstream behaviour.
+
+=head1 Handling absolute paths
+
+The cached files will contain absolute paths based on the environment of
+the native build system which will not necessarily match any future
+cross-build. The absolute paths in fields like B<installscript> and
+B<installbin> need to be converted:
+
+ '/home/codehelp/perl/5.14/perl-5.14.2/debian/tmp/usr/bin'
+
+becomes:
+
+ 'PERL_BUILD_DIR/debian/tmp/usr/bin'
+
+=head1 Adding the files to perl-cross-debian
+
+Within the F<perl-cross-debian> source code tree for the relevant
+architecture, create a new directory for the full upstream version string
+obtained from:
+
+ /bin/bash debian/config.debian --full-version
+
+Just add all the cross-support files into the new directory.
+
+If the list of generated_headers has changed in this version of perl,
+C<perl-cross-debian> may need modification to look for and copy the new
+list.
+
+=cut
