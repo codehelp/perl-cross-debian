@@ -76,20 +76,38 @@
     <title>DESCRIPTION</title>
     <para><command>&dhpackage;</command> supports the long term maintenance
     of cross-build support for the Debian configuration of perl.</para>
+    <para><command>&dhpackage;</command> copies pre-produced config files
+    into the current perl build tree to prevent the build from needing to
+    execute test binaries during the configuration stage by providing the
+    values of the tests in advance. <command>&dhpackage;</command> then
+    extracts values from the cached files to update the build information
+    and package Makefiles.
+    </para>
+  </refsect1>
+  <refsect1 id="command">
+    <title>COMMAND</title>
+    <variablelist>
+      <varlistentry>
+        <term><option>--variant <replaceable>VARIANT</replaceable></option></term>
+        <listitem>
+          <para>Name of the current perl build variant (static, debug or shared),
+          passed in via debian/rules, must be specified once for each iteration.
+          </para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
   </refsect1>
   <refsect1 id="options">
     <title>OPTIONS</title>
     <variablelist>
       <varlistentry>
-        <term><option>--variant <replaceable>VARIANT</replaceable></option></term>
-        <listitem>
-          <para>Name of the current perl build variant (static, debug or shared)</para>
-        </listitem>
-      </varlistentry>
-      <varlistentry>
         <term><option>--rootdir <replaceable>DIRECTORY</replaceable></option></term>
         <listitem>
-          <para>Debug support for testing with unreleased config files.</para>
+          <para>Debug support for testing with unreleased config files,
+          uses the files from the rootdir instead of looking in the 
+          <filename>/usr/share/perl-cross-debian/$(DEB_HOST_GNU_TYPE)/$(PERL_VERSION)</filename>
+          directory. ($(PERL_VERSION) in this instance is the output of
+          <command>/bin/bash debian/config.debian --full-version</command>.)</para>
         </listitem>
       </varlistentry>
       <varlistentry>
@@ -102,5 +120,14 @@
         </listitem>
       </varlistentry>
     </variablelist>
+  </refsect1>
+  <refsect1 id="extensions">
+    <title>Extending perl-cross-debian</title>
+    <para><command>&dhpackage;</command> provides some POD documentation of
+    how to extend support to new architectures and how to update existing
+    support for new versions of perl.
+    </para>
+    <para>See <filename>/usr/share/doc/perl-cross-debian/converting-native.pod</filename>
+    and <filename>/usr/share/doc/perl-cross-debian/new-arch.pod</filename></para>
   </refsect1>
 </refentry>
