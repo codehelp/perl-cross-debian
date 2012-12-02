@@ -1,0 +1,93 @@
+=pod
+
+=head1 Name
+
+new-arch - guidance on adding a new architecture to perl-cross-debian
+
+=head1 Obtaining architecture-specific information
+
+The early stages of any new architecture involve obtaining details of
+architecture-specific values for the sizes of particular data types
+on that architecture and the endianness of the architecture.
+
+A typical set of values could be:
+
+ bigendian=no                   # little endian architecture
+ char unsigned=yes              # char is the same as unsigned char
+ size of long long
+ size of unsigned long long
+ size of long
+ size of unsigned long
+ size of int
+ size of unsigned int
+ size of short
+ size of unsigned short
+ size of char
+ size of unsigned char
+ size of signed char
+ size of float
+ size of double
+ size of long_double
+ size of (void *)
+ size of (char *)
+ size of off_t
+ size of time_t
+
+The size of particular types can be obtained once there is a working
+compiler for the architecture, using e.g.:
+ printf("%d\n", (int)sizeof(long long));
+
+Most packages will try to calculate these values during the configure
+stage by compiling and executing a program to run just that kind of
+call, so cross building the package requires providing the value in
+advance.
+
+F<dpkg-cross> includes cached values for packages using autotools
+but the perl Configure script needs a different syntax and layout for
+the cached values. e.g.
+
+ /* HAS_LONG_DOUBLE:
+  *	This symbol will be defined if the C compiler supports long
+  *	doubles.
+  */
+ /* LONG_DOUBLESIZE:
+  *	This symbol contains the size of a long double, so that the
+  *	C preprocessor can make decisions based on it.  It is only
+  *	defined if the system supports long doubles.
+  */
+ #define HAS_LONG_DOUBLE		/**/
+ #ifdef HAS_LONG_DOUBLE
+ #define LONG_DOUBLESIZE 8		/**/
+ #endif
+
+Generating a new set of config.h and config.sh files for a new
+architecture involves obtaining the raw values from F<dpkg-cross>
+or similar and then modifying the config.h and config.sh files
+for the closest architecture already supported by perl-cross-debian.
+
+The exact changes for any new architecture vary with the version of
+Perl being ported and can contain variables not usually provided by
+F<dpkg-cross> or needed by autotools, e.g. format specifier strings:
+
+ /* PERL_SCNfldbl:
+  *	This symbol, if defined, contains the string used by stdio to
+  *	format long doubles (format 'f') for input.
+  */
+ #define PERL_PRIfldbl	"Lf"	/**/
+ #define PERL_PRIgldbl	"Lg"	/**/
+ #define PERL_PRIeldbl	"Le"	/**/
+ #define PERL_SCNfldbl	"Lf"	/**/
+
+e.g. when creating arm64 config files, the existing armhf and amd64
+files are compared.
+
+The files are likely to need modification once perl can be cross-built
+for the new architecture. Always update the cross-support from the results
+of a native build of perl once that becomes possible on the new arch.
+
+Remember that each set of config files for perl-cross-debian are specific
+to one version of perl, one architecture and the one Debian configuration
+of perl for that version as applied by F<debian/config.debian>.
+
+=cut
+
