@@ -85,13 +85,14 @@ open(CFG, ">config.sh") or die ($!);
 print CFG @out;
 close (CFG);
 
-if ("$perlver" =~ "/^5.16/") {
+if ($perlver =~ /^5.16/) {
+	print "foobar";
 	push @copying, 'mg_data.h';
 	push @copying, 'bitcount.h';
 	push @copying, 'uudmap.h';
 }
 
-if ("$perlver" =~ "/^5.14/") {
+if ($perlver =~ /^5.14/) {
 	push @copying, 'bitcount.h';
 	push @copying, 'uudmap.h';
 }
