@@ -21,6 +21,12 @@ build-stamp:
 		--param make.single.year.ranges "1" \
 		/usr/share/xml/docbook/stylesheet/docbook-xsl/manpages/docbook.xsl \
 		debian/perl-cross-debian.1.xml
+	xsltproc --nonet \
+		--param man.charmap.use.subset "0" \
+		--param make.year.ranges "1" \
+		--param make.single.year.ranges "1" \
+		/usr/share/xml/docbook/stylesheet/docbook-xsl/manpages/docbook.xsl \
+		debian/perl-cross-staging.1.xml
 	touch $@
 
 clean:
