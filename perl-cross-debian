@@ -20,7 +20,8 @@ use strict;
 use warnings;
 use File::Basename;
 use Cwd qw (realpath getcwd);
-use vars qw / $progname $variant @lines $srcdir $rootdir $perlver @copying $arch $ver %names /;
+use vars qw / $progname $variant @lines $srcdir $rootdir $perlver @copying $arch 
+ $ver %names $crossver /;
 $progname = basename($0);
 $srcdir = getcwd();
 $rootdir = '/usr/share/perl-cross-debian/';
@@ -61,6 +62,13 @@ $perlver = `sh ./debian/config.debian --full-version`;
 chomp ($perlver);
 $rootdir .= "${arch}/${perlver}/";
 die sprintf ("%s - %s does not exist!\n", $progname, $rootdir) if (not -d "${rootdir}");
+$crossver = `dpkg-query -W -f '\${Version}\n' perl-base`;
+chomp ($crossver);
+$crossver =~ s/-.*$//;
+if ($crossver ne $perlver) {
+	die sprintf("Version mismatch with installed perl interpreter: Installed: %s Cross: %s\n",
+		$crossver, $perlver);
+}
 print "Copy in pre-produced config files for ${perlver} from ${rootdir}\n";
 
 open(USR_H, "${rootdir}config.h.${variant}") or die ($!);
