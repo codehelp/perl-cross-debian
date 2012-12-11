@@ -1,0 +1,53 @@
+#!/bin/sh
+
+set -e
+
+#  This program is free software; you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation; either version 2 of the License, or
+#  (at your option) any later version.
+#  
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#  
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, write to the Free Software
+#  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+#  MA 02110-1301, USA.
+#  
+
+if [ ! -f 'Makefile.SH' ]; then
+	echo "This doesn't look like a perl source tree!"
+	exit
+fi
+if [ `grep CROSS_PERL Makefile.SH || true` = '' ]; then
+	echo "Does not look like Makefile.SH has been patched for perl-cross-debian!"
+	exit
+fi
+dh_testdir
+dpkg-checkbuilddeps
+if [ ! -d ../staging ]; then
+	mkdir ../staging
+fi
+ARCH=`dpkg-architecture -qDEB_HOST_GNU~_TYPE`
+SHRT_ARCH=`dpkg-architecture -qDEB_HOST_ARCH_CPU`
+DIR="../staging/$ARCH"
+if [ ! -d $DIR ]; then
+	mkdir $DIR
+fi
+export DEB_BUILD_OPTIONS="nocheck"
+fakeroot debian/rules perl.static
+cp config.h $DIR/config.h.static
+cp config.sh $DIR/config.sh.static
+dpkg-architecture -a$(SHRT_ARCH) -c fakeroot debian/rules clean
+fakeroot debian/rules perl.debug
+cp config.h $DIR/config.h.debug
+cp config.sh $DIR/config.sh.debug
+dpkg-architecture -a$(SHRT_ARCH) -c fakeroot debian/rules clean
+SHARED=`/bin/bash debian/config.debian --full-version`
+fakeroot debian/rules libperl.so.$(SHARED)
+cp config.h $DIR/config.h.shared
+cp config.sh $DIR/config.sh.shared
+echo "Now copy the necessary generated headers"

@@ -1,0 +1,108 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+"http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY dhfirstname "Neil">
+  <!ENTITY dhsurname   "Williams">
+  <!ENTITY dhusername  "Neil Williams">
+  <!ENTITY dhemail     "codehelp@debian.org">
+  <!ENTITY dhsection   "1">
+  <!ENTITY dhtitle     "perl-cross-staging User Manual">
+  <!ENTITY dhucpackage "PERL-CROSS-STAGING">
+  <!ENTITY dhpackage   "perl-cross-staging">
+]>
+<refentry>
+  <refentryinfo>
+    <title>&dhtitle;</title>
+    <productname>&dhpackage;</productname>
+    <authorgroup>
+      <author>
+       <firstname>&dhfirstname;</firstname>
+        <surname>&dhsurname;</surname>
+        <contrib>Wrote this manpage for the Debian system.</contrib>
+        <address>
+          <email>&dhemail;</email>
+        </address>
+      </author>
+    </authorgroup>
+    <copyright>
+      <year>2012</year>
+      <holder>&dhusername;</holder>
+    </copyright>
+    <legalnotice>
+      <para>This manual page was written for the Debian system
+        (and may be used by others).</para>
+      <para>Permission is granted to copy, distribute and/or modify this
+        document under the terms of the GNU General Public License,
+        Version 2 or (at your option) any later version published by
+        the Free Software Foundation.</para>
+      <para>On Debian systems, the complete text of the GNU General Public
+        License can be found in
+        <filename>/usr/share/common-licenses/GPL</filename>.</para>
+    </legalnotice>
+  </refentryinfo>
+  <refmeta>
+    <refentrytitle>&dhucpackage;</refentrytitle>
+    <manvolnum>&dhsection;</manvolnum>
+  </refmeta>
+  <refnamediv>
+    <refname>&dhpackage;</refname>
+    <refpurpose>Long term maintenance of cross-build support for the Debian configuration of perl</refpurpose>
+  </refnamediv>
+  <refsynopsisdiv>
+    <cmdsynopsis>
+      <command>&dhpackage;</command>
+    </cmdsynopsis>
+  </refsynopsisdiv>
+  <refsect1 id="description">
+    <title>DESCRIPTION</title>
+    <para><command>&dhpackage;</command> supports the long term maintenance
+    of cross-build support for the Debian configuration of perl.</para>
+    <para><command>&dhpackage;</command> assists in the producuction of
+    config files from the current perl build tree to update existing
+    perl-cross-debian support.
+    </para>
+  </refsect1>
+  <refsect1 id="updating">
+    <title>Updating cross config files</title>
+    <para>Each new version of perl introduces and rearranges the existing
+    config values and the config.h and config.sh files for each variant
+    need to be updated.
+    </para>
+    <para>Some sections simply need to be moved around within the file
+    for easier comparison, some sections will be new (and may need
+    adjustment if the new values are architecture-sensitive) and some
+    may need to be removed. Some values include the version string of
+    the perl version being built. Some values include the name of the
+    compiler or preprocessor.
+    </para>
+    <para>Missing values will be easiest to spot as these cause the
+    build to fail with invalid preprocessing directives.
+    </para>
+    <programlisting>
+config.h:2229:3: error: invalid preprocessing directive #HAS_STATIC_INLINE
+config.h:2766:3: error: invalid preprocessing directive #HAS_SOCKADDR_SA_LEN
+config.h:2773:3: error: invalid preprocessing directive #HAS_SIN6_SCOPE_ID
+config.h:3614:3: error: invalid preprocessing directive #HAS_PRCTL
+config.h:3615:3: error: invalid preprocessing directive #HAS_PRCTL_SET_NAME
+</programlisting>
+    <para>Probably the biggest problem is reorganisation of the files
+    which arises because the files are all generated, rather than edited.
+    This can easily lead to sections being added in one place of the file
+    and being repeated (with differing values) elsewhere. Use a comparison
+    tool like <command>meld</command> to push snippets in and out of the
+    staged files with usable previous/next search/find regexp support.
+    </para>
+    <para>Once one of the variant files has been updated, merge the
+    changes into the other staged variants before comparing those with
+    the files from the previous version of perl.</para>
+    <para>Old perl version strings also need to be updated.</para>
+  </refsect1>
+  <refsect1 id="bugs">
+  <title>BUGS</title>
+  <para>Currently <command>&dhpackage</command> does not substitute the
+  working directory for PERL_BUILD_DIR in the .sh scripts - this is left
+  as one of the manual steps required before including the generated
+  files into <command>perl-cross-debian</command>.
+  </para>
+  </refsect1>
+</refentry>
