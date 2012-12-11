@@ -99,7 +99,7 @@ config.h:3615:3: error: invalid preprocessing directive #HAS_PRCTL_SET_NAME
   </refsect1>
   <refsect1 id="bugs">
   <title>BUGS</title>
-  <para>Currently <command>&dhpackage</command> does not substitute the
+  <para>Currently <command>&dhpackage;</command> does not substitute the
   working directory for PERL_BUILD_DIR in the .sh scripts - this is left
   as one of the manual steps required before including the generated
   files into <command>perl-cross-debian</command>.
