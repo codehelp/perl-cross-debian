@@ -138,7 +138,17 @@ Compilation failed in require at ../../lib/ExtUtils/Mkbootstrap.pm line 27.
   </programlisting>
   <para>Instead, <command>&dhpackage;</command> dies with a version mismatch and fails
   the cross-build. Ensure that the installed perl interpreter is upgraded before testing
-  a cross-build of the updated perl source code (or use a chroot).
+  a cross-build of the updated perl source code (or use a chroot). When using a chroot
+  and old-style dpkg-cross dependencies, consider preparing at least the zlib and bzip2
+  dependencies outside the chroot as a new version of perl is frequently not installable
+  with lots of perl modules such as those used by dpkg-cross. e.g. zlib1g-dev-armel-cross
+  and libbz2-dev-armel-cross as well as libdb-dev-armel-cross and libgdbm-dev-armel-cross.
+  </para>
+  <programlisting>
+sudo xapt -a armel -b zlib1g-dev libbz2-dev libdb-dev libgdbm-dev
+  </programlisting>
+  <para>The -cross packages are in /var/lib/xapt/output and need to be copied into the
+  chroot and installed with <command>dpkg -i ./*</command>
   </para>
   </refsect1>
   <refsect1 id="extensions">
