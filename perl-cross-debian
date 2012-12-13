@@ -23,6 +23,7 @@ use Cwd qw (realpath getcwd);
 use vars qw / $progname $variant @lines $srcdir $rootdir $perlver @copying $arch 
  $ver %names $crossver /;
 $progname = basename($0);
+# expect to find the perl source code with Debian packaging in pwd
 $srcdir = getcwd();
 $rootdir = '/usr/share/perl-cross-debian/';
 $ver = &our_version();
@@ -47,6 +48,7 @@ while( @ARGV ) {
 		die sprintf ("%s: Unknown option %s.\n", $progname, $_);
 	}
 }
+# sanity checks
 die sprintf("%s - Error: no variant specified!\n", $progname) if (not defined $variant);
 die sprintf("%s - Error: unrecognised variant: '%s'!\n", $progname, $variant)
 	if (not defined $names{$variant});
@@ -72,6 +74,7 @@ if ($crossver ne $perlver) {
 if (not defined $ENV{'DEB_BUILD_OPTIONS'} or $ENV{'DEB_BUILD_OPTIONS'} !~ /nocheck/) {
 	die sprintf("\n\nCross builds must be called with DEB_BUILD_OPTIONS set to include 'nocheck'!\n\n");
 }
+# start the work
 print "Copy in pre-produced config files for ${perlver} from ${rootdir}\n";
 
 open(USR_H, "${rootdir}config.h.${variant}") or die ($!);
@@ -97,13 +100,14 @@ print CFG @out;
 close (CFG);
 
 if ($perlver =~ /^5.16/) {
-	print "foobar";
+	printf ("Copying in 3 generated header files for %s", $perlver);
 	push @copying, 'mg_data.h';
 	push @copying, 'bitcount.h';
 	push @copying, 'uudmap.h';
 }
 
 if ($perlver =~ /^5.14/) {
+	printf ("Copying in 2 generated header files for %s", $perlver);
 	push @copying, 'bitcount.h';
 	push @copying, 'uudmap.h';
 }
@@ -116,7 +120,7 @@ foreach my $file (@copying) {
 	close (GEN);
 }
 
-print "And use them to make the Makefiles......\n";
+print "Use pre-produced config files to make the Makefiles......\n";
 
 open (CON, "${rootdir}../../Configure.cross") or die ($!);
 my @conf=<CON>;

@@ -150,6 +150,14 @@ sudo xapt -a armel -b zlib1g-dev libbz2-dev libdb-dev libgdbm-dev
   <para>The -cross packages are in /var/lib/xapt/output and need to be copied into the
   chroot and installed with <command>dpkg -i ./*</command>
   </para>
+  <para><command>&dhpackage;</command> also implements a safeguard to prevent cross-builds
+  when <command>DEB_BUILD_OPTIONS="nocheck"</command> has not been set prior to starting
+  the build. Cross-build failures due to the running of test code within the perl build
+  are not always easy to identify, so <command>&dhpackage;</command> checks for this
+  build option and fails the cross-build if it is not set. (The check occurs inside
+  <command>&dhpackage;</command> so the clean target will have been run before the check
+  is made.)
+  </para>
   </refsect1>
   <refsect1 id="extensions">
     <title>Extending perl-cross-debian</title>
@@ -158,6 +166,7 @@ sudo xapt -a armel -b zlib1g-dev libbz2-dev libdb-dev libgdbm-dev
     support for new versions of perl.
     </para>
     <para>See <filename>/usr/share/doc/perl-cross-debian/converting-native.pod</filename>
-    and <filename>/usr/share/doc/perl-cross-debian/new-arch.pod</filename></para>
+    and <filename>/usr/share/doc/perl-cross-debian/new-arch.pod</filename>
+    </para>
   </refsect1>
 </refentry>

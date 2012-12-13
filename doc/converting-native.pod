@@ -48,6 +48,9 @@ C<debclean> between runs.
 
 =head1 Running each of the three builds
 
+C<perl-cross-staging> will do this work for you, but the manual steps
+are described here for easier debugging.
+
 =over 1
 
 =item Static config files
@@ -95,6 +98,26 @@ B<installbin> need to be converted:
 becomes:
 
  'PERL_BUILD_DIR/debian/tmp/usr/bin'
+
+=head1 Retaining architecture-dependent values
+
+The staged files are generated within the perl build system and the
+ordering and layout of the files frequently changes between perl upstream
+versions. This needs careful management as the files are several
+thousand lines long and it can be all to easy to port the values for
+the staging architecture and not update with the original cross values
+which occur later in the same file.
+
+Fix the ordering of the files first, then look at the lines which only
+occur in the cross files and update the earlier sections with the original
+cross values.
+
+=head1 Testing the updated files
+
+Use the --rootdir option to C<perl-cross-debian> to copy in files from
+your staging location instead of from the installed files in /usr/share
+and remember to test with a fully patched tree and with DEB_BUILD_OPTIONS
+set to include 'nocheck'.
 
 =head1 Adding the files to perl-cross-debian
 

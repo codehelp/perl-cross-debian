@@ -63,7 +63,7 @@ the cached values. e.g.
 Generating a new set of config.h and config.sh files for a new
 architecture involves obtaining the raw values from F<dpkg-cross>
 or similar and then modifying the config.h and config.sh files
-for the closest architecture already supported by perl-cross-debian.
+for the closest architecture already supported by C<perl-cross-debian>.
 
 The exact changes for any new architecture vary with the version of
 Perl being ported and can contain variables not usually provided by

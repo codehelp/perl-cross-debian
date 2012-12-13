@@ -27,11 +27,12 @@ if [ "$GREP" = '' ]; then
 	echo "Does not look like Makefile.SH has been patched for perl-cross-debian!"
 	exit
 fi
-dh_testdir
+# check that the cwd is sane and that native build-deps are installed
 dpkg-checkbuilddeps
 if [ ! -d ../staging ]; then
 	mkdir ../staging
 fi
+# whilst staging is typically done native, brave souls may try to stage cross.
 ARCH=`dpkg-architecture -qDEB_HOST_GNU_TYPE`
 SHRT_ARCH=`dpkg-architecture -qDEB_HOST_ARCH_CPU`
 DIR="../staging/$ARCH"
@@ -39,16 +40,17 @@ if [ ! -d $DIR ]; then
 	mkdir $DIR
 fi
 export DEB_BUILD_OPTIONS="nocheck"
-fakeroot debian/rules perl.static
+# run the staging for the host arch.
+dpkg-architecture -a$(SHRT_ARCH) -c fakeroot debian/rules perl.static
 cp config.h $DIR/config.h.static
 cp config.sh $DIR/config.sh.static
 dpkg-architecture -a$(SHRT_ARCH) -c fakeroot debian/rules clean
-fakeroot debian/rules perl.debug
+dpkg-architecture -a$(SHRT_ARCH) -c fakeroot debian/rules perl.debug
 cp config.h $DIR/config.h.debug
 cp config.sh $DIR/config.sh.debug
 dpkg-architecture -a$(SHRT_ARCH) -c fakeroot debian/rules clean
 SHARED=`/bin/bash debian/config.debian --full-version`
-fakeroot debian/rules libperl.so.$SHARED
+dpkg-architecture -a$(SHRT_ARCH) -c fakeroot debian/rules libperl.so.$SHARED
 cp config.h $DIR/config.h.shared
 cp config.sh $DIR/config.sh.shared
 echo "Now copy the necessary generated headers"
