@@ -69,6 +69,9 @@ if ($crossver ne $perlver) {
 	die sprintf("Version mismatch with installed perl interpreter: Installed: %s Cross: %s\n",
 		$crossver, $perlver);
 }
+if (not defined $ENV{'DEB_BUILD_OPTIONS'} or $ENV{'DEB_BUILD_OPTIONS'} !~ /nocheck/) {
+	die sprintf("\n\nCross builds must be called with DEB_BUILD_OPTIONS set to include 'nocheck'!\n\n");
+}
 print "Copy in pre-produced config files for ${perlver} from ${rootdir}\n";
 
 open(USR_H, "${rootdir}config.h.${variant}") or die ($!);
