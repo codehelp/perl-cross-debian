@@ -112,6 +112,13 @@ Fix the ordering of the files first, then look at the lines which only
 occur in the cross files and update the earlier sections with the original
 cross values.
 
+=head1 Adding new upstream features and components
+
+If the cross build fails at the installperl stage, check the listed
+extensions, known_extensions, nonxs_ext and dynamic_ext in the config
+files for the cross architecture and compare with the files from 
+C<perl-cross-staging>. 
+
 =head1 Testing the updated files
 
 Use the --rootdir option to C<perl-cross-debian> to copy in files from
