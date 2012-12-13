@@ -39,14 +39,14 @@ if [ ! -d $DIR ]; then
 	mkdir $DIR
 fi
 export DEB_BUILD_OPTIONS="nocheck"
-#fakeroot debian/rules perl.static
-#cp config.h $DIR/config.h.static
-#cp config.sh $DIR/config.sh.static
-#dpkg-architecture -a$(SHRT_ARCH) -c fakeroot debian/rules clean
-#fakeroot debian/rules perl.debug
-#cp config.h $DIR/config.h.debug
-#cp config.sh $DIR/config.sh.debug
-#dpkg-architecture -a$(SHRT_ARCH) -c fakeroot debian/rules clean
+fakeroot debian/rules perl.static
+cp config.h $DIR/config.h.static
+cp config.sh $DIR/config.sh.static
+dpkg-architecture -a$(SHRT_ARCH) -c fakeroot debian/rules clean
+fakeroot debian/rules perl.debug
+cp config.h $DIR/config.h.debug
+cp config.sh $DIR/config.sh.debug
+dpkg-architecture -a$(SHRT_ARCH) -c fakeroot debian/rules clean
 SHARED=`/bin/bash debian/config.debian --full-version`
 fakeroot debian/rules libperl.so.$SHARED
 cp config.h $DIR/config.h.shared
