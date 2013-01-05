@@ -51,7 +51,7 @@ while( @ARGV ) {
 	}
 }
 # sanity checks
-die sprintf("%s - Error: no variant specified!\n", $progname) if (not defined $variant);
+die sprintf("%s - Error: no variant specified!\n", $progname) if (not defined $variant and not defined $clean);
 die sprintf("%s - Error: unrecognised variant: '%s'!\n", $progname, $variant)
 	if (not defined $names{$variant} and not defined $clean);
 die sprintf("%s needs to be run within dpkg-architecture -c !\n", $progname)
