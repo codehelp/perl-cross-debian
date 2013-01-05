@@ -1,5 +1,5 @@
---- /home/neil/code/debian/src/perl/perl-5.14.2/debian/rules
-+++ /home/neil/code/debian/src/perl/patches/rules
+--- /home/neil/code/debian/src/perl/cross/original-5.14.2/perl-5.14.2/debian/rules
++++ /home/neil/code/debian/src/perl/cross/5-14-test/perl-5.14.2/debian/rules
 @@ -35,29 +35,64 @@
  checkroot   = test `id -u` -eq 0
  checkperl   = $(SHELL) debian/checkperl
@@ -70,22 +70,7 @@
  
  build: build-stamp
  install: install-stamp
-@@ -73,61 +108,111 @@
- 	test -f $<	# maintainer sanity check
- 	debian/gen-patchlevel -p $(patchprefix) -v $(package_version) $< > $@
- 
-+ifneq ($(DEB_HOST_GNU_TYPE),$(DEB_BUILD_GNU_TYPE))
-+
-+define variant
-+$(if $(findstring static,$1),static,$(if $(findstring debug,$1),debug,shared))
-+endef
-+
-+define cross-config
-+	/usr/bin/perl-cross-debian --variant $(call variant,$@)
-+	perl -Ilib  make_patchnum.pl
-+endef
-+endif
-+
+@@ -76,40 +111,62 @@
  perl.static:
  	$(checkdir)
  	rm -f libperl.so* # must be built last
@@ -96,7 +81,7 @@
  	$(SHELL) debian/config.debian --static
 -	$(MAKE) perl $(test_target)
 +else
-+	$(cross-config)
++	perl-cross-debian --variant static
 +endif
 +	$(MAKE) perl $(test_target)  CROSS_PERL=$(HOST_PERL)
  	mv libperl.a libperl-static
@@ -116,7 +101,7 @@
  	$(SHELL) debian/config.debian --debug
 -	$(MAKE) perl
 +else
-+	$(cross-config)
++	perl-cross-debian --variant debug
 +endif
 +	$(MAKE) perl CROSS_PERL=$(HOST_PERL)
  	mv perl perl.debug
@@ -130,7 +115,7 @@
  	$(SHELL) debian/config.debian --shared
 -	$(MAKE) SHRPLDFLAGS='$$(LDDLFLAGS) -Wl,-soname,libperl.so.$(version)' $@
 +else
-+	$(cross-config)
++	perl-cross-debian --variant shared
 +endif
 +	$(MAKE) SHRPLDFLAGS='$$(LDDLFLAGS) -Wl,-soname,libperl.so.$(version)' $@ CROSS_PERL=$(HOST_PERL)
  	ln -s libperl.so.$(fullversion) libperl.so.$(version)
@@ -156,15 +141,12 @@
  	rm -rf config.over perl.static perl.debug libperl-static libperl.so* \
  	    $(patchlevel) build-stamp install-stamp t/auto debian/shlibs.local \
  	    debian/perl-base.shlibs debian/libperl$(version).shlibs \
--	    debian/substvars debian/files debian/list.tmp $(tmp) $(build)
-+	    debian/substvars debian/files debian/list.tmp $(tmp) $(build) \
-+		Configure.cross config.sh config.h xconfig.h uudmap.h bitcount.h
+@@ -117,17 +174,31 @@
  	# <https://rt.cpan.org/Public/Bug/Display.html?id=68214>
  	rm -f cpan/DB_File/DB_File.pm.bak cpan/DB_File/t/db-btree.t.bak \
  	    cpan/DB_File/t/db-hash.t.bak cpan/DB_File/t/db-recno.t.bak
-+	find lib -name .exists -o -name '*.so' -o -name '*.bs' -o -name '*.ld' | xargs rm -f
 +ifneq ($(DEB_HOST_GNU_TYPE),$(DEB_BUILD_GNU_TYPE))
-+	rm -fr Cross/$(DEB_HOST_GNU_TYPE)/*.new
++	perl-cross-debian --clean
 +endif
  
  install-stamp: build-stamp
@@ -193,7 +175,7 @@
  	    -e 's/^(man1ext=).*/$$1'\''1p'\''/;' \
  	    -e 's/^(man3ext=).*/$$1'\''3pm'\''/;' \
  		$(lib)/Config.pm $(lib)/Config_heavy.pl
-@@ -138,24 +223,24 @@
+@@ -138,24 +209,24 @@
  		for flag in $(shell dpkg-buildflags --get CPPFLAGS) \
  		         $(shell dpkg-buildflags --get CFLAGS); do \
  			case "$$flag" in -fstack-protector) ;; \
@@ -222,7 +204,7 @@
  
  	# simple wrapper around Errno module
  	cp debian/errno.ph $(lib)
-@@ -163,10 +248,10 @@
+@@ -163,10 +234,10 @@
  ifeq (,$(findstring nocheck,$(DEB_BUILD_OPTIONS)))
  ifeq (,$(findstring x-perl-notest,$(DEB_BUILD_OPTIONS)))
  	# Verify that the headers are usable
@@ -236,7 +218,7 @@
  				|| exit 1; \
  		fi; \
  	done
-@@ -213,14 +298,14 @@
+@@ -213,14 +284,14 @@
  		done) >debian/list.tmp; \
  	    (cd $(tmp); cpio -vdumpl ../build/$$p) <debian/list.tmp 2>&1 | \
  		grep -v ' linked to '; \
@@ -253,7 +235,7 @@
  
  	# create symlinks to match @INC
  	ln -s $(fullversion) $(build)/perl-base/usr/lib/perl/$(version)
-@@ -231,7 +316,7 @@
+@@ -231,7 +302,7 @@
  	# Verify that perl-base stays self contained
  	# plain "use IO " and "use re" are deprecated and/or useless
  
@@ -262,7 +244,7 @@
  	  < debian/perl-base.files
  endif
  endif
-@@ -269,7 +354,7 @@
+@@ -269,7 +340,7 @@
  	cp debian/rename $(build)/perl/usr/bin/prename
  	chmod 755 $(build)/perl/usr/bin/prename
  
@@ -271,7 +253,7 @@
  	    debian/rename >$(build)/perl/usr/share/man/man1/prename.1
  
  	# install docs
-@@ -336,12 +421,12 @@
+@@ -336,12 +407,12 @@
  			dir=$${path%/*}; \
  			test -d $(debug)$$dir || mkdir -p $(debug)$$dir; \
  			# stash debugging symbols \
@@ -287,7 +269,7 @@
  		esac; \
  	    done
  	    # versioned hardlink for the detached debug symbols
-@@ -384,7 +469,7 @@
+@@ -384,7 +455,7 @@
  	$(checkdir)
  	$(checkroot)
  	rm -f debian/substvars
@@ -296,7 +278,7 @@
  	    and /^Package:\s+(.*)/m' debian/control`; \
  	do \
  	    rm -rf $(build)/$$p/DEBIAN; \
-@@ -420,7 +505,7 @@
+@@ -420,7 +491,7 @@
  	    >debian/perl-base.shlibs
  endif
  
@@ -305,7 +287,7 @@
  	    and /^Package:\s+(.*)/m' debian/control`; \
  	do \
  	    rm -rf $(build)/$$p/DEBIAN debian/substvars; \
-@@ -436,7 +521,7 @@
+@@ -436,7 +507,7 @@
  		>$(build)/$$p/DEBIAN/md5sums; \
  	done
  	# dpkg-shlibdeps needs to be run only after all the shlibs are present
