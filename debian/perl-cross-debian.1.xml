@@ -56,6 +56,10 @@
     </cmdsynopsis>
     <cmdsynopsis>
       <command>&dhpackage;</command>
+      <arg choice="plain"><option>--clean</option></arg>
+    </cmdsynopsis>
+    <cmdsynopsis>
+      <command>&dhpackage;</command>
       <group choice="opt">
         <arg choice="plain">
           <group choice="req">
