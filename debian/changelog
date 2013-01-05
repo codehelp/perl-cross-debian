@@ -1,8 +1,8 @@
-perl-cross-debian (0.0.2) UNRELEASED; urgency=low
+perl-cross-debian (0.0.2) experimental; urgency=low
 
   * Add a clean command to handle generated headers (Closes: #696189)
 
- -- Neil Williams <codehelp@debian.org>  Sat, 05 Jan 2013 17:19:48 +0000
+ -- Neil Williams <codehelp@debian.org>  Sat, 05 Jan 2013 18:32:21 +0000
 
 perl-cross-debian (0.0.1) experimental; urgency=low
 
