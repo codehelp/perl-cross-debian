@@ -152,15 +152,17 @@ sub usageversion {
 
 Usage:
  %s --variant STR [--rootdir DIR]
+ %s --clean
  %s -?|-h|--help|--version
 
 Command:
  --variant STRING - name of the current perl build variant (static, debug, shared)
+ --clean          - runs the clean target and exits zero.
 
 Options:
  --rootdir DIR    - debug support for testing with unreleased config files.
 
-", $progname, $ver, $progname, $progname);
+", $progname, $ver, $progname, $progname, $progname);
 }
 
 sub our_version {
