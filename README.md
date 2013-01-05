@@ -26,3 +26,4 @@ programs using the native perl interpreter on the system.
 1. perl-cross-debian is likely to require that the version of the native
 perl interpreter used in the build is the same version as the version of
 perl being cross-built.
+1. perl-cross-debian is now [a Debian package](http://packages.qa.debian.org/p/perl-cross-debian.html).
