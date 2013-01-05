@@ -159,6 +159,48 @@ sudo xapt -a armel -b zlib1g-dev libbz2-dev libdb-dev libgdbm-dev
   is made.)
   </para>
   </refsect1>
+  <refsect1 id="cross">
+    <title>Running the cross build</title>
+    <para><command>&dhpackage;</command> needs some changes to the perl package before
+    cross-building, so ensure that <filename>Makefile.SH</filename> and
+    <filename>debian/rules</filename> are both patched and that the
+    cross dependencies and cross compiler are installed.
+    </para>
+    <para><command>debuild</command> is preferred as this will provide a
+    build log and run lintian (by default) which means that the built
+    packages will be checked to ensure that the binaries have been correctly
+    compiled for the cross architecture (amongst the normal checks).
+    Run the cross build with:
+    </para>
+    <programlisting>
+DEB_BUILD_OPTIONS="nocheck" debuild -aarmel -us -uc -d
+    </programlisting>
+    <para>Note the use of <emphasis>the -d option</emphasis> as dpkg cannot
+    check cross-build dependencies until MutiArch -dev packages are in use.
+    </para>
+  </refsect1>
+  <refsect1 id="clean">
+    <title>Clean target support</title>
+    <para><command>&dhpackage;</command> includes support for a custom clean
+    target for cross-builds to ensure that version-specific content generated
+    during the cross-build is cleaned up before dpkg-source tries to verify
+    the source package. If there are additional files which need to be cleaned,
+    file a bug against <command>&dhpackage;</command>.
+    </para>
+  </refsect1>
+  <refsect1 id="install">
+     <title>Extension installation</title>
+     <para>The current method of building and installing the extensions
+     does need testing and improvement. Whilst the main emphasis for a
+     perl cross build is to support bootstrapping by having the normal perl
+     interpreter available instead of just miniperl, there may be less
+     emphasis on the correct functioning of the extensions and modules
+     normally packaged by a native perl build. Problems relating to any
+     use of perl extensions and modules when the cross built perl
+     packages are installed should be reported as bugs in
+     <command>&dhpackage;</command>.
+     </para>
+  </refsect1>
   <refsect1 id="extensions">
     <title>Extending perl-cross-debian</title>
     <para><command>&dhpackage;</command> provides some POD documentation of
