@@ -51,9 +51,11 @@ while( @ARGV ) {
 	}
 }
 # sanity checks
-die sprintf("%s - Error: no variant specified!\n", $progname) if (not defined $variant and not defined $clean);
+if (not defined $clean) {
+die sprintf("%s - Error: no variant specified!\n", $progname) if (not defined $variant);
 die sprintf("%s - Error: unrecognised variant: '%s'!\n", $progname, $variant)
-	if (not defined $names{$variant} and not defined $clean);
+	if (not defined $names{$variant});
+}
 die sprintf("%s needs to be run within dpkg-architecture -c !\n", $progname)
 	if (not defined $ENV{'DEB_HOST_GNU_TYPE'} or not defined $ENV{'DEB_BUILD_GNU_TYPE'});
 die sprintf("%s - Error: nothing to do here, not a cross-build!\n", $progname)
@@ -74,14 +76,14 @@ if ($crossver ne $perlver) {
 		$crossver, $perlver);
 }
 if ($perlver =~ /^5.16/) {
-	printf ("Copying in 3 generated header files for %s", $perlver);
+	printf ("Copying in 3 generated header files for %s", $perlver) if (not defined $clean);
 	push @copying, 'mg_data.h';
 	push @copying, 'bitcount.h';
 	push @copying, 'uudmap.h';
 }
 
 if ($perlver =~ /^5.14/) {
-	printf ("Copying in 2 generated header files for %s", $perlver);
+	printf ("Copying in 2 generated header files for %s", $perlver) if (not defined $clean);
 	push @copying, 'bitcount.h';
 	push @copying, 'uudmap.h';
 }
@@ -89,6 +91,10 @@ if (defined $clean) {
 	unlink ('Configure.cross', 'config.sh', 'config.h', 'xconfig.h');
 	unlink ('Cross/$(arch)/*.new');
 	system ("find lib -name .exists -o -name '*.so' -o -name '*.bs' -o -name '*.ld' | xargs rm -f");
+	unlink ("dist/IO/MYMETA.yml", "dist/IO/Makefile", "dist/IO/Makefile.old",
+	"lib/IO.pm", "lib/IO/Dir.pm", "lib/IO/File.pm", "lib/IO/Handle.pm",
+	"lib/IO/Pipe.pm", "lib/IO/Poll.pm", "lib/IO/Seekable.pm", "lib/IO/Select.pm",
+	"lib/IO/Socket.pm", "lib/IO/Socket/INET.pm", "lib/IO/Socket/UNIX.pm");
 	unlink (@copying);
 	exit (0);
 }
