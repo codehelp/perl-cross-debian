@@ -21,7 +21,7 @@ use warnings;
 use File::Basename;
 use Cwd qw (realpath getcwd);
 use vars qw / $progname $variant @lines $srcdir $rootdir $perlver @copying $arch 
- $ver %names $crossver /;
+ $ver %names $crossver $clean /;
 $progname = basename($0);
 # expect to find the perl source code with Debian packaging in pwd
 $srcdir = getcwd();
@@ -44,6 +44,8 @@ while( @ARGV ) {
 		$rootdir .= '/';
 	} elsif (/^(--variant)$/) {
 		$variant = shift;
+	} elsif (/^(--clean)$/) {
+		$clean++;
 	} else {
 		die sprintf ("%s: Unknown option %s.\n", $progname, $_);
 	}
@@ -51,7 +53,7 @@ while( @ARGV ) {
 # sanity checks
 die sprintf("%s - Error: no variant specified!\n", $progname) if (not defined $variant);
 die sprintf("%s - Error: unrecognised variant: '%s'!\n", $progname, $variant)
-	if (not defined $names{$variant});
+	if (not defined $names{$variant} and not defined $clean);
 die sprintf("%s needs to be run within dpkg-architecture -c !\n", $progname)
 	if (not defined $ENV{'DEB_HOST_GNU_TYPE'} or not defined $ENV{'DEB_BUILD_GNU_TYPE'});
 die sprintf("%s - Error: nothing to do here, not a cross-build!\n", $progname)
@@ -70,6 +72,25 @@ $crossver =~ s/-.*$//;
 if ($crossver ne $perlver) {
 	die sprintf("Version mismatch with installed perl interpreter: Installed: %s Cross: %s\n",
 		$crossver, $perlver);
+}
+if ($perlver =~ /^5.16/) {
+	printf ("Copying in 3 generated header files for %s", $perlver);
+	push @copying, 'mg_data.h';
+	push @copying, 'bitcount.h';
+	push @copying, 'uudmap.h';
+}
+
+if ($perlver =~ /^5.14/) {
+	printf ("Copying in 2 generated header files for %s", $perlver);
+	push @copying, 'bitcount.h';
+	push @copying, 'uudmap.h';
+}
+if (defined $clean) {
+	unlink ('Configure.cross', 'config.sh', 'config.h', 'xconfig.h');
+	unlink ('Cross/$(arch)/*.new');
+	system ("find lib -name .exists -o -name '*.so' -o -name '*.bs' -o -name '*.ld' | xargs rm -f");
+	unlink (@copying);
+	exit (0);
 }
 if (not defined $ENV{'DEB_BUILD_OPTIONS'} or $ENV{'DEB_BUILD_OPTIONS'} !~ /nocheck/) {
 	die sprintf("\n\nCross builds must be called with DEB_BUILD_OPTIONS set to include 'nocheck'!\n\n");
@@ -98,19 +119,6 @@ foreach my $line (@lines) {
 open(CFG, ">config.sh") or die ($!);
 print CFG @out;
 close (CFG);
-
-if ($perlver =~ /^5.16/) {
-	printf ("Copying in 3 generated header files for %s", $perlver);
-	push @copying, 'mg_data.h';
-	push @copying, 'bitcount.h';
-	push @copying, 'uudmap.h';
-}
-
-if ($perlver =~ /^5.14/) {
-	printf ("Copying in 2 generated header files for %s", $perlver);
-	push @copying, 'bitcount.h';
-	push @copying, 'uudmap.h';
-}
 foreach my $file (@copying) {
 	open (CPY, "${rootdir}$file") or die ($!);
 	my @cpy=<CPY>;
@@ -130,6 +138,7 @@ print CRS @conf;
 close (CRS);
 
 system ("sh ./Configure.cross");
+system ("/usr/bin/perl -Ilib  make_patchnum.pl");
 
 sub usageversion {
 	warn sprintf ("
