@@ -95,6 +95,16 @@
           </para>
         </listitem>
       </varlistentry>
+      <varlistentry>
+        <term><option>--clean</option></term>
+        <listitem>
+          <para>Runs the <command>&dhpackage;</command> clean target and
+          exits zero. <option>--clean</option> overrides any <option>--variant</option>
+          command - the clean operation does not depend on the current
+          variant.
+          </para>
+        </listitem>
+      </varlistentry>
     </variablelist>
   </refsect1>
   <refsect1 id="options">
