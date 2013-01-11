@@ -27,7 +27,7 @@ $progname = basename($0);
 $srcdir = getcwd();
 $rootdir = '/usr/share/perl-cross-debian/';
 $ver = &our_version();
-%names = ( static => 1, debug => 2, shared => 3 );
+%names = ( static => 1, debug => 2, shared => 3, native => 4 );
 while( @ARGV ) {
 	$_= shift( @ARGV );
 	last if m/^--$/;
@@ -81,15 +81,20 @@ if (($crossver ne $perlver) and (not defined $usedevel)) {
 	die sprintf("Version mismatch with installed perl interpreter: Installed: %s Cross: %s\n",
 		$crossver, $perlver);
 }
-if ($perlver =~ /^5.16/) {
-	printf ("Copying in 3 generated header files for %s", $perlver) if (not defined $clean);
+if ($perlver =~ /^5.17/ and defined $usedevel) {
+	printf ("Copying in 3 generated header files for %s\n", $perlver) if (not defined $clean);
 	push @copying, 'mg_data.h';
 	push @copying, 'bitcount.h';
 	push @copying, 'uudmap.h';
 }
-
+if ($perlver =~ /^5.16/) {
+	printf ("Copying in 3 generated header files for %s\n", $perlver) if (not defined $clean);
+	push @copying, 'mg_data.h';
+	push @copying, 'bitcount.h';
+	push @copying, 'uudmap.h';
+}
 if ($perlver =~ /^5.14/) {
-	printf ("Copying in 2 generated header files for %s", $perlver) if (not defined $clean);
+	printf ("Copying in 2 generated header files for %s\n", $perlver) if (not defined $clean);
 	push @copying, 'bitcount.h';
 	push @copying, 'uudmap.h';
 }
@@ -109,7 +114,7 @@ if ((not defined $ENV{'DEB_BUILD_OPTIONS'} or $ENV{'DEB_BUILD_OPTIONS'} !~ /noch
 	die sprintf("\n\nCross builds must be called with DEB_BUILD_OPTIONS set to include 'nocheck'!\n\n");
 }
 # start the work
-print "Copy in pre-produced config files for ${perlver} from ${rootdir}\n";
+print "Copy in pre-produced config files for ${perlver} from ${rootdir}, variant $variant\n";
 
 open(USR_H, "${rootdir}config.h.${variant}") or die ($!);
 @lines=<USR_H>;
@@ -143,15 +148,23 @@ foreach my $file (@copying) {
 
 print "Use pre-produced config files to make the Makefiles......\n";
 
-open (CON, "${rootdir}../../Configure.cross") or die ($!);
-my @conf=<CON>;
-close (CON);
-open (CRS, ">Configure.cross") or die ($!);
-print CRS @conf;
-close (CRS);
-
-system ("sh ./Configure.cross");
-system ("/usr/bin/perl -Ilib  make_patchnum.pl");
+if (defined $usedevel) {
+	my $line = "-des -Dusedevel -Dusecrosscompile ";
+	$line .= " -Dcc=arm-linux-gnueabi-gcc";
+	system ("./Configure $line 2>&1 | tee ../upstream-native.log");
+	system ("cp -v host/miniperl miniperl");
+	system ("make");
+} else {
+	open (CON, "${rootdir}../../Configure.cross") or die ($!);
+	my @conf=<CON>;
+	close (CON);
+	open (CRS, ">Configure.cross") or die ($!);
+	print CRS @conf;
+	close (CRS);
+	
+	system ("sh ./Configure.cross");
+	system ("/usr/bin/perl -Ilib  make_patchnum.pl");
+}
 
 sub usageversion {
 	warn sprintf ("
