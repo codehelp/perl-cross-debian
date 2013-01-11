@@ -21,7 +21,7 @@ use warnings;
 use File::Basename;
 use Cwd qw (realpath getcwd);
 use vars qw / $progname $variant @lines $srcdir $rootdir $perlver @copying $arch 
- $ver %names $crossver $clean /;
+ $ver %names $crossver $clean $perlver $usedevel /;
 $progname = basename($0);
 # expect to find the perl source code with Debian packaging in pwd
 $srcdir = getcwd();
@@ -46,6 +46,10 @@ while( @ARGV ) {
 		$variant = shift;
 	} elsif (/^(--clean)$/) {
 		$clean++;
+	} elsif (/^(--perlver)$/) {
+		$perlver = shift;
+	} elsif (/^(--usedevel)$/) {
+		$usedevel++;
 	} else {
 		die sprintf ("%s: Unknown option %s.\n", $progname, $_);
 	}
@@ -62,16 +66,18 @@ die sprintf("%s - Error: nothing to do here, not a cross-build!\n", $progname)
 	if ($ENV{'DEB_HOST_GNU_TYPE'} eq $ENV{'DEB_BUILD_GNU_TYPE'});
 $arch = $ENV{'DEB_HOST_GNU_TYPE'};
 chomp ($arch);
-die sprintf("%s: Cannot find ./debian/config.debian!", $progname)
-	if (not -f './debian/config.debian');
-$perlver = `sh ./debian/config.debian --full-version`;
-chomp ($perlver);
+if (not defined $perlver) {
+	die sprintf("%s: Cannot find ./debian/config.debian!", $progname)
+		if (not -f './debian/config.debian');
+	$perlver = `sh ./debian/config.debian --full-version`;
+	chomp ($perlver);
+}
 $rootdir .= "${arch}/${perlver}/";
 die sprintf ("%s - %s does not exist!\n", $progname, $rootdir) if (not -d "${rootdir}");
 $crossver = `dpkg-query -W -f '\${Version}\n' perl-base`;
 chomp ($crossver);
 $crossver =~ s/-.*$//;
-if ($crossver ne $perlver) {
+if (($crossver ne $perlver) and (not defined $usedevel)) {
 	die sprintf("Version mismatch with installed perl interpreter: Installed: %s Cross: %s\n",
 		$crossver, $perlver);
 }
@@ -98,7 +104,8 @@ if (defined $clean) {
 	unlink (@copying);
 	exit (0);
 }
-if (not defined $ENV{'DEB_BUILD_OPTIONS'} or $ENV{'DEB_BUILD_OPTIONS'} !~ /nocheck/) {
+if ((not defined $ENV{'DEB_BUILD_OPTIONS'} or $ENV{'DEB_BUILD_OPTIONS'} !~ /nocheck/)
+	and (not defined $usedevel)) {
 	die sprintf("\n\nCross builds must be called with DEB_BUILD_OPTIONS set to include 'nocheck'!\n\n");
 }
 # start the work
