@@ -80,11 +80,15 @@
     <title>DESCRIPTION</title>
     <para><command>&dhpackage;</command> supports the long term maintenance
     of cross-build support for the Debian configuration of perl.</para>
-    <para><command>&dhpackage;</command> picks up the cross-building environment
-    set by <command>dpkg-architecture -aARCH</command> when it is run from
-    the <filename>debian/rules</filename> file of a modified Debian perl
-    source package. Full support is limited to specific versions of perl already
-    packaged in Debian and only for selected architectures.
+    <para><command>&dhpackage;</command> is not expected to be run directly
+    on the command line, it is executed by the modified <filename>debian/rules</filename>
+    of a Debian source package of perl, within the constraints of a cross-build.
+    <command>&dhpackage;</command> uses the cross-building environment
+    set by <command>dpkg-architecture -aARCH</command> to provide essential
+    configuration values for the requested architecture to avoid executing
+    cross-built binaries within the cross-build. Full support is limited
+    to specific versions of perl already packaged in Debian and only for
+    selected architectures.
     </para>
     <para><command>&dhpackage;</command> copies pre-produced config files
     into the current perl build tree to prevent the build from needing to
