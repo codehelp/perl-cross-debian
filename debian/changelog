@@ -1,3 +1,9 @@
+perl-cross-debian (0.0.3) UNRELEASED; urgency=low
+
+  * Add the current patches to the package.
+
+ -- Neil Williams <codehelp@debian.org>  Wed, 30 Jan 2013 19:29:28 +0000
+
 perl-cross-debian (0.0.2) experimental; urgency=low
 
   * Add a clean command to handle generated headers (Closes: #696189)

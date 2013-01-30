@@ -5,6 +5,7 @@ perl-cross-staging.1 ./usr/share/man/man1/
 Configure.cross ./usr/share/perl-cross-debian/
 arm-linux-gnueabi/ ./usr/share/perl-cross-debian/
 arm-linux-gnueabihf/ ./usr/share/perl-cross-debian/
-perl-cross-native.sh ./usr/share/perl-cross/debian/
+perl-cross-native.sh ./usr/share/perl-cross-debian/
 doc/converting-native.pod ./usr/share/doc/perl-cross-debian/
 doc/new-arch.pod ./usr/share/doc/perl-cross-debian/
+patches/ ./usr/share/perl-cross-debian/
