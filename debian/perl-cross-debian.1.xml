@@ -80,12 +80,32 @@
     <title>DESCRIPTION</title>
     <para><command>&dhpackage;</command> supports the long term maintenance
     of cross-build support for the Debian configuration of perl.</para>
+    <para><command>&dhpackage;</command> picks up the cross-building environment
+    set by <command>dpkg-architecture -aARCH</command> when it is run from
+    the <filename>debian/rules</filename> file of a modified Debian perl
+    source package. Full support is limited to specific versions of perl already
+    packaged in Debian and only for selected architectures.
+    </para>
     <para><command>&dhpackage;</command> copies pre-produced config files
     into the current perl build tree to prevent the build from needing to
     execute test binaries during the configuration stage by providing the
     values of the tests in advance. <command>&dhpackage;</command> then
     extracts values from the cached files to update the build information
     and package Makefiles.
+    </para>
+    <para><command>&dhpackage;</command> then relies on a patched
+    <filename>Makefile.SH</filename> to call the host perl interpreter
+    instead of the perl interpreter being built internally.
+    </para>
+    <para>See <emphasis>Running the cross build</emphasis> for details of
+    how to prepare the Debian packages of perl for cross-building for the
+    one of the currently supported host architectures. (Patches to apply
+    to supported Debian versions of perl are included in
+    <filename>/usr/share/perl-cross-debian/patches</filename>).
+    </para>
+    <para>See <emphasis>perl-cross-staging (1)</emphasis> for information
+    on how to extend <command>&dhpackage;</command> to other host
+    architectures and other versions of perl.
     </para>
   </refsect1>
   <refsect1 id="command">
@@ -180,6 +200,9 @@ sudo xapt -a armel -b zlib1g-dev libbz2-dev libdb-dev libgdbm-dev
     <filename>debian/rules</filename> are both patched and that the
     cross dependencies and cross compiler are installed.
     </para>
+    <para>Patches are carried in the <command>&dhpackage;</command> package
+    in <filename>/usr/share/perl-cross-debian/patches</filename>.
+    </para>
     <para><command>debuild</command> is preferred as this will provide a
     build log and run lintian (by default) which means that the built
     packages will be checked to ensure that the binaries have been correctly
@@ -190,7 +213,18 @@ sudo xapt -a armel -b zlib1g-dev libbz2-dev libdb-dev libgdbm-dev
 DEB_BUILD_OPTIONS="nocheck" debuild -aarmel -us -uc -d
     </programlisting>
     <para>Note the use of <emphasis>the -d option</emphasis> as dpkg cannot
-    check cross-build dependencies until MutiArch -dev packages are in use.
+    check cross-build dependencies until MutiArch -dev packages are in use
+    and the requirement for DEB_BUILD_OPTIONS to disable the test suite.
+    </para>
+  </refsect1>
+  <refsect1 id="support">
+    <title>Supported versions and architectures</title>
+    <para><command>&dhpackage;</command> support is patchy but can be improved.
+    Only specific architectures at specific versions are supported - if you
+    do not find the files for the requested version in the directory of the
+    architecture required, see perl-cross-staging (1) for information on how
+    this information can be added and also for details of ongoing work with
+    perl upstream.
     </para>
   </refsect1>
   <refsect1 id="clean">

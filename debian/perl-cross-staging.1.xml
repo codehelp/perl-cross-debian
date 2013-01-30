@@ -118,6 +118,18 @@ config.h:3615:3: error: invalid preprocessing directive #HAS_PRCTL_SET_NAME
     a cross build but this has not been tested. Please report success or
     failure.</para>
   </refsect1>
+  <refsect1 id="upstream">
+    <title>Upstream support</title>
+    <para>Note that work is ongoing to get perl cross-building upstream and
+    this is not complete. <command>&dhpackage;</command> will need changes
+    once this work is complete. The aim is to make it easier to obtain the
+    configuration value cache for architectures where real hardware or an
+    emulation model can be accessed over a network. This work takes place
+    at https://github.com/codehelp/perl/tree/jrobinson/configure-for-cross
+    which is intermittently pulled into the main cross-configure branch at
+    https://github.com/castaway/perl/tree/jrobinson/configure-for-cross
+    </para>
+  </refsect1>
   <refsect1 id="bugs">
   <title>BUGS</title>
   <para>Currently <command>&dhpackage;</command> does not substitute the
