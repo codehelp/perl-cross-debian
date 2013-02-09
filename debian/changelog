@@ -1,6 +1,7 @@
 perl-cross-debian (0.0.4) experimental; urgency=low
 
   * Add arm64 support for perl 5.14.2 thanks to Wookey.
+  * Add some notes on the generated headers and how these are used.
 
  -- Neil Williams <codehelp@debian.org>  Tue, 05 Feb 2013 10:05:36 +0000
 

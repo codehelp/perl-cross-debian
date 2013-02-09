@@ -89,5 +89,10 @@ Remember that each set of config files for perl-cross-debian are specific
 to one version of perl, one architecture and the one Debian configuration
 of perl for that version as applied by F<debian/config.debian>.
 
+=head1 Generated headers
+
+See F<converting-native.pod> for information on the header files which
+are generated as part of the build.
+
 =cut
 

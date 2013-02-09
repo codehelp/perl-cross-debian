@@ -86,6 +86,30 @@ and kept for cross-build support.
 These headers B<are not expected to change> between stages B<but must
 be compared> between builds to check for modified upstream behaviour.
 
+To see how these headers are generated, see the C source code in perl upstream:
+F<generate_uudmap.c>
+
+This C file can be compiled using the native compiler for any architecture
+or an existing cross compiler for a new architecture and executed on that
+architecture or a model to generate the headers.
+
+=over 1
+
+=item Example from an amd64 build of perl 5.14.2:
+
+ $ make generate_uudmap
+ cc   -Wl,-z,relro -fstack-protector -L/usr/local/lib  generate_uudmap.c   -o generate_uudmap
+ $ ./generate_uudmap uudemap.h bitcount.h
+
+In 5.14.2, these headers are included into F<perl.h> and used in
+F<pp_pack.c> for unpacking support. e.g. in 5.14.2, bitcount.h is a
+population count of an array of char.
+
+=back
+
+Note that different versions of perl prepare different sets of generated
+headers - check the source code of the version of perl you are using.
+
 =head1 Handling absolute paths
 
 The cached files will contain absolute paths based on the environment of
