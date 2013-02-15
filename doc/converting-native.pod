@@ -105,6 +105,12 @@ In 5.14.2, these headers are included into F<perl.h> and used in
 F<pp_pack.c> for unpacking support. e.g. in 5.14.2, bitcount.h is a
 population count of an array of char.
 
+e.g. EBCDIC platforms are likely to produce different content to
+common destktop / embedded platforms. Modern Linux kernels are able to
+use an in-kernel converter to handle EBCDIC as ASCII on such platforms.
+
+http://en.wikipedia.org/wiki/EBCDIC
+
 =back
 
 Note that different versions of perl prepare different sets of generated
