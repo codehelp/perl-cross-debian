@@ -70,13 +70,12 @@ else
         PERL_TO_USE = $(PERL_EXE)
         # we use old-style dpkg-cross paths only. See other rules file.
         ifeq (,$(wildcard /usr/lib/$(DEB_BUILD_MULTIARCH)/perl))
-          PERL_EXE_LIBS = /usr/lib/perl/$(package_upstream_version)
-           export ZLIB_LIB=/usr/$(DEB_HOST_GNU_TYPE)/lib
-           export BZIP2_LIB=/usr/$(DEB_HOST_GNU_TYPE)/lib
-           export LIB=/usr/$(DEB_HOST_GNU_TYPE)/lib
+           PERL_EXE_LIBS = /usr/lib/perl/$(package_upstream_version)
            HEADER_DIR  = /usr/$(DEB_HOST_GNU_TYPE)/include
            export ZLIB_INCLUDE=/usr/$(DEB_HOST_GNU_TYPE)/include
+           export ZLIB_LIB=/usr/$(DEB_HOST_GNU_TYPE)/lib
            export BZIP2_INCLUDE=/usr/$(DEB_HOST_GNU_TYPE)/include
+           export BZIP2_LIB=/usr/$(DEB_HOST_GNU_TYPE)/lib
            export INCLUDE=/usr/$(DEB_HOST_GNU_TYPE)/include
            export LIB=/usr/$(DEB_HOST_GNU_TYPE)/lib
         endif
