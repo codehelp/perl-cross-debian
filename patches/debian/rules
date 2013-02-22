@@ -54,7 +54,7 @@ package_upstream_version = $(shell dpkg-parsechangelog | \
 package_version = $(shell dpkg-parsechangelog | sed -n 's/^Version: *//p')
 
 ifeq ($(DEB_HOST_GNU_TYPE), $(DEB_BUILD_GNU_TYPE))
-        HOST_PERL = 
+        PERL_EXE = 
         PERL_TO_USE = $(srcdir)/perl.static
         HEADER_DIR = /usr/include
         OBJCOPY = objcopy
@@ -66,20 +66,11 @@ ifeq ($(DEB_HOST_GNU_TYPE), $(DEB_BUILD_GNU_TYPE))
         export INCLUDE=/usr/include
         export LIB=/usr/lib
 else
-        HOST_PERL = $(shell which perl)
-        PERL_TO_USE = $(HOST_PERL)
-        ifneq (,$(wildcard /usr/lib/$(DEB_BUILD_MULTIARCH)/perl))
-           HOST_PERL_LIBS = /usr/lib/$(DEB_BUILD_MULTIARCH)/perl/$(package_upstream_version)
-           export ZLIB_LIB=/usr/lib/$(DEB_HOST_GNU_TYPE)
-           export BZIP2_LIB=/usr/lib/$(DEB_HOST_GNU_TYPE)
-           export LIB=/usr/lib/$(DEB_HOST_GNU_TYPE)
-           HEADER_DIR  = /usr/include/$(DEB_HOST_GNU_TYPE)
-           export ZLIB_INCLUDE=/usr/include/$(DEB_HOST_GNU_TYPE)
-           export BZIP2_INCLUDE=/usr/include/$(DEB_HOST_GNU_TYPE)
-           export INCLUDE=/usr/include/$(DEB_HOST_GNU_TYPE)
-           export LIB=/usr/lib/$(DEB_HOST_GNU_TYPE)
-        else
-          HOST_PERL_LIBS = /usr/lib/perl/$(package_upstream_version)
+        PERL_EXE = $(shell which perl)
+        PERL_TO_USE = $(PERL_EXE)
+        # we use old-style dpkg-cross paths only. See other rules file.
+        ifeq (,$(wildcard /usr/lib/$(DEB_BUILD_MULTIARCH)/perl))
+          PERL_EXE_LIBS = /usr/lib/perl/$(package_upstream_version)
            export ZLIB_LIB=/usr/$(DEB_HOST_GNU_TYPE)/lib
            export BZIP2_LIB=/usr/$(DEB_HOST_GNU_TYPE)/lib
            export LIB=/usr/$(DEB_HOST_GNU_TYPE)/lib
@@ -136,14 +127,14 @@ endif
 perl.static:
 	$(checkdir)
 	rm -f libperl.so* # must be built last
-	[ ! -f Makefile ] || $(MAKE) distclean CROSS_PERL=$(HOST_PERL)
+	[ ! -f Makefile ] || $(MAKE) distclean CROSS_PERL=$(PERL_EXE)
 	[ -f $(patchlevel) ] || touch $(patchlevel)
 ifeq ($(DEB_HOST_GNU_TYPE),$(DEB_BUILD_GNU_TYPE))
 	$(SHELL) debian/config.debian --static
 else
 	$(cross-config)
 endif
-	$(MAKE) perl $(test_target)  CROSS_PERL=$(HOST_PERL)
+	$(MAKE) perl $(test_target)  CROSS_PERL=$(PERL_EXE)
 	mv libperl.a libperl-static
 	mv perl perl.static
 
@@ -153,26 +144,26 @@ endif
 perl.debug:
 	$(checkdir)
 	rm -f libperl.so* # must be built last
-	[ ! -f Makefile ] || $(MAKE) distclean CROSS_PERL=$(HOST_PERL)
+	[ ! -f Makefile ] || $(MAKE) distclean CROSS_PERL=$(PERL_EXE)
 	[ -f $(patchlevel) ] || touch $(patchlevel)
 ifeq ($(DEB_HOST_GNU_TYPE),$(DEB_BUILD_GNU_TYPE))
 	$(SHELL) debian/config.debian --debug
 else
 	$(cross-config)
 endif
-	$(MAKE) perl CROSS_PERL=$(HOST_PERL)
+	$(MAKE) perl CROSS_PERL=$(PERL_EXE)
 	mv perl perl.debug
 
 libperl.so.$(fullversion):
 	$(checkdir)
-	[ ! -f Makefile ] || $(MAKE) distclean CROSS_PERL=$(HOST_PERL)
+	[ ! -f Makefile ] || $(MAKE) distclean CROSS_PERL=$(PERL_EXE)
 	[ -f $(patchlevel) ] || touch $(patchlevel)
 ifeq ($(DEB_HOST_GNU_TYPE),$(DEB_BUILD_GNU_TYPE))
 	$(SHELL) debian/config.debian --shared
 else
 	$(cross-config)
 endif
-	$(MAKE) SHRPLDFLAGS='$$(LDDLFLAGS) -Wl,-soname,libperl.so.$(version)' $@ CROSS_PERL=$(HOST_PERL)
+	$(MAKE) SHRPLDFLAGS='$$(LDDLFLAGS) -Wl,-soname,libperl.so.$(version)' $@ CROSS_PERL=$(PERL_EXE)
 	ln -s libperl.so.$(fullversion) libperl.so.$(version)
 	ln -s libperl.so.$(version) libperl.so
 ifeq ($(DEB_HOST_GNU_TYPE),$(DEB_BUILD_GNU_TYPE))
@@ -180,10 +171,10 @@ ifeq ($(DEB_HOST_GNU_TYPE),$(DEB_BUILD_GNU_TYPE))
 else
 	@echo "Need to use installed (host) extensions when building extensions...."
 	@echo "Overwrite any built so far"
-	cp -fr $(HOST_PERL_LIBS)/auto/* lib/auto/
+	cp -fr $(PERL_EXE_LIBS)/auto/* lib/auto/
 	@echo "Now make the extensions"
 	-mkdir lib/$(DEB_HOST_GNU_TYPE)
-	$(MAKE) extensions CROSS_PERL=$(HOST_PERL) INST_ARCHLIB=$(srcdir)/lib/$(DEB_HOST_GNU_TYPE)
+	$(MAKE) extensions CROSS_PERL=$(PERL_EXE) INST_ARCHLIB=$(srcdir)/lib/$(DEB_HOST_GNU_TYPE)
 endif
 
 
@@ -191,7 +182,7 @@ clean:
 	$(checkdir)
 	$(checkroot)
 	test -f $(patches)	# maintainer sanity check
-	[ ! -f Makefile ] || $(MAKE) distclean  CROSS_PERL=$(HOST_PERL)
+	[ ! -f Makefile ] || $(MAKE) distclean  CROSS_PERL=$(PERL_EXE)
 	rm -rf config.over perl.static perl.debug libperl-static libperl.so* \
 	    $(patchlevel) build-stamp install-stamp t/auto debian/shlibs.local \
 	    debian/perl-base.shlibs debian/libperl$(version).shlibs \
@@ -211,8 +202,8 @@ install-stamp: build-stamp
 	rm -rf $(tmp) $(build)
 ifneq ($(DEB_HOST_GNU_TYPE),$(DEB_BUILD_GNU_TYPE))
 	@echo "Copy back all the target-independent extensions - for use and installation"
-	cp -fr $(HOST_PERL_LIBS)/auto/* lib/auto/
-	$(MAKE) install CROSS_PERL=$(HOST_PERL)
+	cp -fr $(PERL_EXE_LIBS)/auto/* lib/auto/
+	$(MAKE) install CROSS_PERL=$(PERL_EXE)
 	@echo "Copy the arch dependent ones over the debian ones for installation into packages"
 	find . -name .exists -o -name '*.bs' | xargs rm -f
 	-mkdir -p $(lib)/auto
