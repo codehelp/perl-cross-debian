@@ -51,7 +51,7 @@
  
  globals$(OBJ_EXT): uudmap.h bitcount.h
  
-+ifeq (,\$(CROSS_PERL))
++ifeq (,$(CROSS_PERL))
 +# If we're cross-building, we should have uudmap.h and bitcount.h
 +# provided already
  uudmap.h: bitcount.h
