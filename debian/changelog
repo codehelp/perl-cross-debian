@@ -4,6 +4,7 @@ perl-cross-debian (0.0.5) unstable; urgency=low
   * Add watch file as this isn't on git.d.o but on github instead.
     Include lintian override for the same.
   * Add an initial rules.diff for multiarch support, not ready yet.
+  * Add initial support for perl 5.18
 
  -- Neil Williams <codehelp@debian.org>  Wed, 08 May 2013 11:49:35 +0100
 
