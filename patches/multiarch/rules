@@ -81,6 +81,15 @@ else
            export BZIP2_LIB=/usr/lib/$(DEB_HOST_GNU_TYPE)
            export INCLUDE=/usr/include/$(DEB_HOST_GNU_TYPE)
            export LIB=/usr/lib/$(DEB_HOST_GNU_TYPE)
+        else
+           PERL_EXE_LIBS = /usr/lib/perl/$(package_upstream_version)
+           HEADER_DIR  = /usr/include/$(DEB_HOST_GNU_TYPE)
+           export ZLIB_INCLUDE=/usr/$(DEB_HOST_GNU_TYPE)/include
+           export ZLIB_LIB=/usr/lib/$(DEB_HOST_GNU_TYPE)
+           export BZIP2_INCLUDE=/usr/include/$(DEB_HOST_GNU_TYPE)
+           export BZIP2_LIB=/usr/lib/$(DEB_HOST_GNU_TYPE)
+           export INCLUDE=/usr/include/$(DEB_HOST_GNU_TYPE)
+           export LIB=/usr/lib/$(DEB_HOST_GNU_TYPE)
         endif
         OBJCOPY = $(DEB_HOST_GNU_TYPE)-objcopy
         STRIP = $(DEB_HOST_GNU_TYPE)-strip
@@ -179,6 +188,7 @@ ifeq ($(DEB_HOST_GNU_TYPE),$(DEB_BUILD_GNU_TYPE))
 else
 	@echo "Need to use installed (host) extensions when building extensions...."
 	@echo "Overwrite any built so far"
+	-mkdir -p $(lib)/auto
 	cp -fr $(PERL_EXE_LIBS)/auto/* lib/auto/
 	@echo "Now make the extensions"
 	-mkdir lib/$(DEB_HOST_GNU_TYPE)
@@ -210,11 +220,11 @@ install-stamp: build-stamp
 	rm -rf $(tmp) $(build)
 ifneq ($(DEB_HOST_GNU_TYPE),$(DEB_BUILD_GNU_TYPE))
 	@echo "Copy back all the target-independent extensions - for use and installation"
-	cp -fr $(PERL_EXE_LIBS)/auto/* lib/auto/
+	-mkdir -p $(lib)/auto
+	cp -fr $(PERL_EXE_LIBS)/auto/* $(lib)/auto/
 	$(MAKE) install CROSS_PERL=$(PERL_EXE)
 	@echo "Copy the arch dependent ones over the debian ones for installation into packages"
 	find . -name .exists -o -name '*.bs' | xargs rm -f
-	-mkdir -p $(lib)/auto
 	cp -fr lib/$(DEB_HOST_GNU_TYPE)/auto/*  $(lib)/auto/
 	echo "Don't install INST_ARCHLIB into packages"
 	-find $(tmp)/usr/share/perl -name $(DEB_HOST_GNU_TYPE) -exec rm -fr {} \;
@@ -236,12 +246,12 @@ endif
 		         $(shell dpkg-buildflags --get CFLAGS); do \
 			case "$$flag" in -fstack-protector) ;; \
 			     *) $(PERL_TO_USE) -i -pe "/^(cc|cpp)flags/ and \
-			          s/(['\s])\Q$$flag\E(['\s])/\1\2/ and s/  +/ /" \
+			          s#(['\s])\Q$$flag\E(['\s])#\1\2# and s/  +/ /" \
 		            $(lib)/Config.pm $(lib)/Config_heavy.pl ;; \
 		    esac; done; \
 		for flag in $(shell dpkg-buildflags --get LDFLAGS); do \
 			$(PERL_TO_USE) -i -pe "/^ld(dl)?flags/ and \
-			          s/(['\s])\Q$$flag\E(['\s])/\1\2/ and s/  +/ /" \
+			          s#(['\s])\Q$$flag\E(['\s])#\1\2# and s/  +/ /" \
 		          $(lib)/Config.pm $(lib)/Config_heavy.pl ; \
 		done; \
 	fi

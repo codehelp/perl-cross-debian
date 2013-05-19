@@ -1,0 +1,4 @@
+version=3
+https://github.com/codehelp/perl-cross-debian/tags \
+.*/archive/perl-cross-debian-(\d\S*)\.tar\.gz
+# Bart Martens <bartm@debian.org>  Sun, 03 Mar 2013 21:27:22 +0000

@@ -3,7 +3,7 @@ Section: devel
 Priority: extra
 Maintainer: Neil Williams <codehelp@debian.org>
 Build-Depends: debhelper (>= 8.0.0), xsltproc, docbook-xsl
-Standards-Version: 3.9.3
+Standards-Version: 3.9.4
 Homepage: https://github.com/codehelp/perl-cross-debian
 Vcs-Git: git://github.com/codehelp/perl-cross-debian.git
 Vcs-Browser: https://github.com/codehelp/perl-cross-debian

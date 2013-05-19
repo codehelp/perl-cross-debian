@@ -1,0 +1,3 @@
+# package uses github instead of git.debian.org, so has a watch but is still native.
+perl-cross-debian source: debian-watch-file-in-native-package
+

@@ -1,2 +1,5 @@
 # allow the snippets to not require executable permissions.
 perl-cross-debian: script-not-executable usr/share/perl-cross-debian/*
+# allow debian/rules as a patch file
+perl-cross-debian: missing-dep-for-interpreter
+

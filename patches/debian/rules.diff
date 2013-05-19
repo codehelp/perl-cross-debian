@@ -1,6 +1,6 @@
---- /home/neil/code/debian/src/perl/cross/original-5.14.2/perl-5.14.2/debian/rules
-+++ /home/neil/code/debian/perl-cross-debian/perl-cross-debian/patches/debian/rules
-@@ -35,29 +35,77 @@
+--- /home/neil/code/debian/src/perl/patches/original/perl-5.14.2/debian/rules	2013-03-07 17:01:37.000000000 +0000
++++ patches/debian/rules	2013-03-23 17:48:09.000000000 +0000
+@@ -35,29 +35,67 @@
  checkroot   = test `id -u` -eq 0
  checkperl   = $(SHELL) debian/checkperl
  
@@ -23,7 +23,7 @@
  package_version = $(shell dpkg-parsechangelog | sed -n 's/^Version: *//p')
  
 +ifeq ($(DEB_HOST_GNU_TYPE), $(DEB_BUILD_GNU_TYPE))
-+        HOST_PERL = 
++        PERL_EXE = 
 +        PERL_TO_USE = $(srcdir)/perl.static
 +        HEADER_DIR = /usr/include
 +        OBJCOPY = objcopy
@@ -35,26 +35,16 @@
 +        export INCLUDE=/usr/include
 +        export LIB=/usr/lib
 +else
-+        HOST_PERL = $(shell which perl)
-+        PERL_TO_USE = $(HOST_PERL)
-+        ifneq (,$(wildcard /usr/lib/$(DEB_BUILD_MULTIARCH)/perl))
-+           HOST_PERL_LIBS = /usr/lib/$(DEB_BUILD_MULTIARCH)/perl/$(package_upstream_version)
-+           export ZLIB_LIB=/usr/lib/$(DEB_HOST_GNU_TYPE)
-+           export BZIP2_LIB=/usr/lib/$(DEB_HOST_GNU_TYPE)
-+           export LIB=/usr/lib/$(DEB_HOST_GNU_TYPE)
-+           HEADER_DIR  = /usr/include/$(DEB_HOST_GNU_TYPE)
-+           export ZLIB_INCLUDE=/usr/include/$(DEB_HOST_GNU_TYPE)
-+           export BZIP2_INCLUDE=/usr/include/$(DEB_HOST_GNU_TYPE)
-+           export INCLUDE=/usr/include/$(DEB_HOST_GNU_TYPE)
-+           export LIB=/usr/lib/$(DEB_HOST_GNU_TYPE)
-+        else
-+          HOST_PERL_LIBS = /usr/lib/perl/$(package_upstream_version)
-+           export ZLIB_LIB=/usr/$(DEB_HOST_GNU_TYPE)/lib
-+           export BZIP2_LIB=/usr/$(DEB_HOST_GNU_TYPE)/lib
-+           export LIB=/usr/$(DEB_HOST_GNU_TYPE)/lib
++        PERL_EXE = $(shell which perl)
++        PERL_TO_USE = $(PERL_EXE)
++        # we use old-style dpkg-cross paths only. See other rules file.
++        ifeq (,$(wildcard /usr/lib/$(DEB_BUILD_MULTIARCH)/perl))
++           PERL_EXE_LIBS = /usr/lib/perl/$(package_upstream_version)
 +           HEADER_DIR  = /usr/$(DEB_HOST_GNU_TYPE)/include
 +           export ZLIB_INCLUDE=/usr/$(DEB_HOST_GNU_TYPE)/include
++           export ZLIB_LIB=/usr/$(DEB_HOST_GNU_TYPE)/lib
 +           export BZIP2_INCLUDE=/usr/$(DEB_HOST_GNU_TYPE)/include
++           export BZIP2_LIB=/usr/$(DEB_HOST_GNU_TYPE)/lib
 +           export INCLUDE=/usr/$(DEB_HOST_GNU_TYPE)/include
 +           export LIB=/usr/$(DEB_HOST_GNU_TYPE)/lib
 +        endif
@@ -83,7 +73,7 @@
  
  build: build-stamp
  install: install-stamp
-@@ -73,43 +121,77 @@
+@@ -73,43 +111,77 @@
  	test -f $<	# maintainer sanity check
  	debian/gen-patchlevel -p $(patchprefix) -v $(package_version) $< > $@
  
@@ -103,7 +93,7 @@
  	$(checkdir)
  	rm -f libperl.so* # must be built last
 -	[ ! -f Makefile ] || $(MAKE) distclean
-+	[ ! -f Makefile ] || $(MAKE) distclean CROSS_PERL=$(HOST_PERL)
++	[ ! -f Makefile ] || $(MAKE) distclean CROSS_PERL=$(PERL_EXE)
  	[ -f $(patchlevel) ] || touch $(patchlevel)
 +ifeq ($(DEB_HOST_GNU_TYPE),$(DEB_BUILD_GNU_TYPE))
  	$(SHELL) debian/config.debian --static
@@ -111,7 +101,7 @@
 +else
 +	$(cross-config)
 +endif
-+	$(MAKE) perl $(test_target)  CROSS_PERL=$(HOST_PERL)
++	$(MAKE) perl $(test_target)  CROSS_PERL=$(PERL_EXE)
  	mv libperl.a libperl-static
  	mv perl perl.static
  
@@ -123,7 +113,7 @@
  	$(checkdir)
  	rm -f libperl.so* # must be built last
 -	[ ! -f Makefile ] || $(MAKE) distclean
-+	[ ! -f Makefile ] || $(MAKE) distclean CROSS_PERL=$(HOST_PERL)
++	[ ! -f Makefile ] || $(MAKE) distclean CROSS_PERL=$(PERL_EXE)
  	[ -f $(patchlevel) ] || touch $(patchlevel)
 +ifeq ($(DEB_HOST_GNU_TYPE),$(DEB_BUILD_GNU_TYPE))
  	$(SHELL) debian/config.debian --debug
@@ -131,13 +121,13 @@
 +else
 +	$(cross-config)
 +endif
-+	$(MAKE) perl CROSS_PERL=$(HOST_PERL)
++	$(MAKE) perl CROSS_PERL=$(PERL_EXE)
  	mv perl perl.debug
  
  libperl.so.$(fullversion):
  	$(checkdir)
 -	[ ! -f Makefile ] || $(MAKE) distclean
-+	[ ! -f Makefile ] || $(MAKE) distclean CROSS_PERL=$(HOST_PERL)
++	[ ! -f Makefile ] || $(MAKE) distclean CROSS_PERL=$(PERL_EXE)
  	[ -f $(patchlevel) ] || touch $(patchlevel)
 +ifeq ($(DEB_HOST_GNU_TYPE),$(DEB_BUILD_GNU_TYPE))
  	$(SHELL) debian/config.debian --shared
@@ -145,7 +135,7 @@
 +else
 +	$(cross-config)
 +endif
-+	$(MAKE) SHRPLDFLAGS='$$(LDDLFLAGS) -Wl,-soname,libperl.so.$(version)' $@ CROSS_PERL=$(HOST_PERL)
++	$(MAKE) SHRPLDFLAGS='$$(LDDLFLAGS) -Wl,-soname,libperl.so.$(version)' $@ CROSS_PERL=$(PERL_EXE)
  	ln -s libperl.so.$(fullversion) libperl.so.$(version)
  	ln -s libperl.so.$(version) libperl.so
 +ifeq ($(DEB_HOST_GNU_TYPE),$(DEB_BUILD_GNU_TYPE))
@@ -153,10 +143,10 @@
 +else
 +	@echo "Need to use installed (host) extensions when building extensions...."
 +	@echo "Overwrite any built so far"
-+	cp -fr $(HOST_PERL_LIBS)/auto/* lib/auto/
++	cp -fr $(PERL_EXE_LIBS)/auto/* lib/auto/
 +	@echo "Now make the extensions"
 +	-mkdir lib/$(DEB_HOST_GNU_TYPE)
-+	$(MAKE) extensions CROSS_PERL=$(HOST_PERL) INST_ARCHLIB=$(srcdir)/lib/$(DEB_HOST_GNU_TYPE)
++	$(MAKE) extensions CROSS_PERL=$(PERL_EXE) INST_ARCHLIB=$(srcdir)/lib/$(DEB_HOST_GNU_TYPE)
 +endif
 +
  
@@ -165,11 +155,11 @@
  	$(checkroot)
  	test -f $(patches)	# maintainer sanity check
 -	[ ! -f Makefile ] || $(MAKE) distclean
-+	[ ! -f Makefile ] || $(MAKE) distclean  CROSS_PERL=$(HOST_PERL)
++	[ ! -f Makefile ] || $(MAKE) distclean  CROSS_PERL=$(PERL_EXE)
  	rm -rf config.over perl.static perl.debug libperl-static libperl.so* \
  	    $(patchlevel) build-stamp install-stamp t/auto debian/shlibs.local \
  	    debian/perl-base.shlibs debian/libperl$(version).shlibs \
-@@ -117,17 +199,33 @@
+@@ -117,17 +189,33 @@
  	# <https://rt.cpan.org/Public/Bug/Display.html?id=68214>
  	rm -f cpan/DB_File/DB_File.pm.bak cpan/DB_File/t/db-btree.t.bak \
  	    cpan/DB_File/t/db-hash.t.bak cpan/DB_File/t/db-recno.t.bak
@@ -186,8 +176,8 @@
 -
 +ifneq ($(DEB_HOST_GNU_TYPE),$(DEB_BUILD_GNU_TYPE))
 +	@echo "Copy back all the target-independent extensions - for use and installation"
-+	cp -fr $(HOST_PERL_LIBS)/auto/* lib/auto/
-+	$(MAKE) install CROSS_PERL=$(HOST_PERL)
++	cp -fr $(PERL_EXE_LIBS)/auto/* lib/auto/
++	$(MAKE) install CROSS_PERL=$(PERL_EXE)
 +	@echo "Copy the arch dependent ones over the debian ones for installation into packages"
 +	find . -name .exists -o -name '*.bs' | xargs rm -f
 +	-mkdir -p $(lib)/auto
@@ -205,19 +195,21 @@
  	    -e 's/^(man1ext=).*/$$1'\''1p'\''/;' \
  	    -e 's/^(man3ext=).*/$$1'\''3pm'\''/;' \
  		$(lib)/Config.pm $(lib)/Config_heavy.pl
-@@ -138,24 +236,24 @@
+@@ -138,24 +226,24 @@
  		for flag in $(shell dpkg-buildflags --get CPPFLAGS) \
  		         $(shell dpkg-buildflags --get CFLAGS); do \
  			case "$$flag" in -fstack-protector) ;; \
 -			     *) ./perl.static -i -pe "/^(cc|cpp)flags/ and \
+-			          s/(['\s])\Q$$flag\E(['\s])/\1\2/ and s/  +/ /" \
 +			     *) $(PERL_TO_USE) -i -pe "/^(cc|cpp)flags/ and \
- 			          s/(['\s])\Q$$flag\E(['\s])/\1\2/ and s/  +/ /" \
++			          s#(['\s])\Q$$flag\E(['\s])#\1\2# and s/  +/ /" \
  		            $(lib)/Config.pm $(lib)/Config_heavy.pl ;; \
  		    esac; done; \
  		for flag in $(shell dpkg-buildflags --get LDFLAGS); do \
 -			./perl.static -i -pe "/^ld(dl)?flags/ and \
+-			          s/(['\s])\Q$$flag\E(['\s])/\1\2/ and s/  +/ /" \
 +			$(PERL_TO_USE) -i -pe "/^ld(dl)?flags/ and \
- 			          s/(['\s])\Q$$flag\E(['\s])/\1\2/ and s/  +/ /" \
++			          s#(['\s])\Q$$flag\E(['\s])#\1\2# and s/  +/ /" \
  		          $(lib)/Config.pm $(lib)/Config_heavy.pl ; \
  		done; \
  	fi
@@ -234,7 +226,7 @@
  
  	# simple wrapper around Errno module
  	cp debian/errno.ph $(lib)
-@@ -163,10 +261,10 @@
+@@ -163,10 +251,10 @@
  ifeq (,$(findstring nocheck,$(DEB_BUILD_OPTIONS)))
  ifeq (,$(findstring x-perl-notest,$(DEB_BUILD_OPTIONS)))
  	# Verify that the headers are usable
@@ -248,7 +240,7 @@
  				|| exit 1; \
  		fi; \
  	done
-@@ -184,7 +282,7 @@
+@@ -184,7 +272,7 @@
  
  	# relocate perl libraries and create links
  	cp libperl-static $(tmp)/usr/lib/libperl.a
@@ -257,7 +249,7 @@
  
  	ln -s libperl.so.$(fullversion) $(tmp)/usr/lib/libperl.so.$(version)
  	ln -s libperl.so.$(version) $(tmp)/usr/lib/libperl.so
-@@ -213,14 +311,14 @@
+@@ -213,14 +301,14 @@
  		done) >debian/list.tmp; \
  	    (cd $(tmp); cpio -vdumpl ../build/$$p) <debian/list.tmp 2>&1 | \
  		grep -v ' linked to '; \
@@ -274,7 +266,7 @@
  
  	# create symlinks to match @INC
  	ln -s $(fullversion) $(build)/perl-base/usr/lib/perl/$(version)
-@@ -231,7 +329,7 @@
+@@ -231,7 +319,7 @@
  	# Verify that perl-base stays self contained
  	# plain "use IO " and "use re" are deprecated and/or useless
  
@@ -283,7 +275,7 @@
  	  < debian/perl-base.files
  endif
  endif
-@@ -269,7 +367,7 @@
+@@ -269,7 +357,7 @@
  	cp debian/rename $(build)/perl/usr/bin/prename
  	chmod 755 $(build)/perl/usr/bin/prename
  
@@ -292,7 +284,7 @@
  	    debian/rename >$(build)/perl/usr/share/man/man1/prename.1
  
  	# install docs
-@@ -336,12 +434,12 @@
+@@ -336,12 +424,12 @@
  			dir=$${path%/*}; \
  			test -d $(debug)$$dir || mkdir -p $(debug)$$dir; \
  			# stash debugging symbols \
@@ -308,7 +300,7 @@
  		esac; \
  	    done
  	    # versioned hardlink for the detached debug symbols
-@@ -384,7 +482,7 @@
+@@ -384,7 +472,7 @@
  	$(checkdir)
  	$(checkroot)
  	rm -f debian/substvars
@@ -317,7 +309,7 @@
  	    and /^Package:\s+(.*)/m' debian/control`; \
  	do \
  	    rm -rf $(build)/$$p/DEBIAN; \
-@@ -420,7 +518,7 @@
+@@ -420,7 +508,7 @@
  	    >debian/perl-base.shlibs
  endif
  
@@ -326,7 +318,7 @@
  	    and /^Package:\s+(.*)/m' debian/control`; \
  	do \
  	    rm -rf $(build)/$$p/DEBIAN debian/substvars; \
-@@ -436,7 +534,7 @@
+@@ -436,7 +524,7 @@
  		>$(build)/$$p/DEBIAN/md5sums; \
  	done
  	# dpkg-shlibdeps needs to be run only after all the shlibs are present
