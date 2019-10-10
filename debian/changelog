@@ -2,6 +2,7 @@ perl-cross-debian (0.0.6) UNRELEASED; urgency=medium
 
   * Use secure copyright file specification URI.
   * Bump debhelper from deprecated 8 to 12.
+  * Change priority extra to priority optional.
 
  -- Debian Janitor <janitor@jelmer.uk>  Thu, 10 Oct 2019 16:03:29 +0000
 
