@@ -1,3 +1,9 @@
+perl-cross-debian (0.0.6) UNRELEASED; urgency=medium
+
+  * Use secure copyright file specification URI.
+
+ -- Debian Janitor <janitor@jelmer.uk>  Thu, 10 Oct 2019 16:03:29 +0000
+
 perl-cross-debian (0.0.5) unstable; urgency=low
 
   * Move package from experimental into unstable.
