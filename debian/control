@@ -5,7 +5,7 @@ Maintainer: Neil Williams <codehelp@debian.org>
 Build-Depends: debhelper-compat (= 12), xsltproc, docbook-xsl
 Standards-Version: 3.9.4
 Homepage: https://github.com/codehelp/perl-cross-debian
-Vcs-Git: git://github.com/codehelp/perl-cross-debian.git
+Vcs-Git: https://github.com/codehelp/perl-cross-debian.git
 Vcs-Browser: https://github.com/codehelp/perl-cross-debian
 
 Package: perl-cross-debian
