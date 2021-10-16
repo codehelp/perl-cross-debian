@@ -2,6 +2,7 @@ perl-cross-debian (0.0.6) UNRELEASED; urgency=medium
 
   * Use secure copyright file specification URI.
   * Bump debhelper from deprecated 8 to 13.
+  * Set debhelper-compat version in Build-Depends.
 
  -- Debian Janitor <janitor@jelmer.uk>  Sat, 16 Oct 2021 03:28:44 -0000
 
