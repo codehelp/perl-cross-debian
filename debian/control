@@ -1,6 +1,6 @@
 Source: perl-cross-debian
 Section: devel
-Priority: extra
+Priority: optional
 Maintainer: Neil Williams <codehelp@debian.org>
 Build-Depends: debhelper-compat (= 13), xsltproc, docbook-xsl
 Standards-Version: 3.9.4
